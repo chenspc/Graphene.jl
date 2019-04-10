@@ -1,17 +1,29 @@
 module Graphene
 
+using DataFrames
+using DataFramesMeta
+using Query
+using CSV
+using CategoricalArrays
+using Missings
+using IterTools
+using GeometricalPredicates
+using NearestNeighbors
+# using Distances
+# using Images
+using BenchmarkTools
 
-# All-in-one ID generator for AtomID, BondID, and PolygonID
-function id_generator(c::Channel)
-    for n1 in collect('a':'z')
-        for n2 in collect('a':'z')
-            for n3 in collect('a':'z')
-                for n4 in collect('a':'z')
-                    put!(c, string(n1,n2,n3,n4))
-                end
-            end
-        end
-    end
-end
+export CAtom,
+       CBond,
+       CPolygon
+
+# Change this to enable debugging
+const DEBUG = false
+
+include("data_inport.jl")
+include("id_generator.jl")
+include("atoms.jl")
+include("bonds.jl")
+include("polygons.jl")
 
 end # module
