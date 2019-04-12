@@ -1,5 +1,6 @@
-using Test
 using Graphene
+using Test
+using BenchmarkTools
 
 @test 1 == 1
 @test_broken 1 == 0
