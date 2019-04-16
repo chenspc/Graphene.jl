@@ -28,7 +28,6 @@ polygon = patoms_collection[1]
 indexed_atoms_collection[polygon][1]
 length([indexed_atoms_collection[polygon][1]])
 
-# verts = map(x -> index2xy(x, indexed_atoms_collection), polygon)
 verts = []
 verts_new = index2xy(polygon, indexed_atoms_collection)
 @test_broken verts == verts_new

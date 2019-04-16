@@ -9,6 +9,11 @@ using Missings
 using IterTools
 using GeometricalPredicates
 using NearestNeighbors
+using Images
+using ImageMorphology
+using ImageSegmentation
+using ImageView
+using FileIO
 # using Gadfly
 using Plots
 # using Luxor

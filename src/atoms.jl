@@ -39,13 +39,13 @@ function xy2atom(atom_xy)
 end
 
 function index2xy(x, indexed_atoms_collection)
-    if length(x) == 1
-        atom = indexed_atoms_collection[x]
-        output = getx(atom), gety(atom)
-    else
+    # if length(x) == 1
+    #     atom = indexed_atoms_collection[x]
+    #     output = getx(atom), gety(atom)
+    # else
         atoms = indexed_atoms_collection[x]
         output = map(xx -> (getx(xx), gety(xx)), atoms)
-    end
+    # end
     return output
 end
 
