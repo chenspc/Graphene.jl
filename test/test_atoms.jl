@@ -1,6 +1,7 @@
 using Graphene
 using Test
 using BenchmarkTools
+using Statistics
 
 @test my_isnothing(1) == true
 @test my_isnothing(nothing) == false
@@ -72,7 +73,7 @@ function tally(zd, K)
     return ret
 end
 
-atom_groups_collection = collect_atom_groups(atom_xy; max_bondlength=9.0)
+atom_groups_collection = collect_atom_groups(atom_xy; max_bondlength=10.0)
 bonds_collection, paths_collection = collect_bonds_paths(atom_groups_collection, indexed_atoms_collection)
 polygon_collection = collect_polygons(paths_collection)
 length.(first.(polygon_collection))
@@ -85,3 +86,126 @@ pbonds_collection = last.(polygon_collection)
 # @benchmark maximum(length.(first.(polygon_collection)))
 
 tally(length.(first.(polygon_collection)), 20)
+
+# function markthebench(atom_xy)
+#     atom_groups_collection = collect_atom_groups(atom_xy; max_bondlength=9.0)
+#     bonds_collection, paths_collection = collect_bonds_paths(atom_groups_collection, indexed_atoms_collection)
+#     polygon_collection = collect_polygons(paths_collection)
+#     length.(first.(polygon_collection))
+#     patoms_collection = first.(polygon_collection)
+#     pbonds_collection = last.(polygon_collection)
+# end
+#
+# markthebench(atom_xy)
+# @benchmark markthebench(atom_xy)
+
+patoms_collection
+map(length, patoms_collection)
+plocation_collection = map(length, patoms_collection)
+
+plocation_collection = map(x->index2xy(x, indexed_atoms_collection), patoms_collection)
+
+minimum(plocation_collection)
+
+argmin(plocation_collection)
+
+patoms_collection[48]
+
+index2xy(patoms_collection[48],indexed_atoms_collection)
+typeof(index2xy(patoms_collection[48],indexed_atoms_collection))
+typeof(index2xy(patoms_collection[47],indexed_atoms_collection))
+typeof(patoms_collection[48])
+length(patoms_collection[48])
+
+x = patoms_collection[48]
+
+indexed_atoms_collection[patoms_collection[48]]
+
+mean.([first.(plocation_collection[1]), last.(plocation_collection[1])])
+
+
+plocation_collection[1]
+
+patomsxy_collection = map(x->index2xy(x, indexed_atoms_collection), patoms_collection)
+patomsxy_collection
+
+px_collection = map(mean, map(x -> first.(x), patomsxy_collection))
+py_collection = map(mean, map(x -> last.(x), patomsxy_collection))
+
+zip(px_collection, py_collection)
+
+px_collection[48]
+py_collection[48]
+
+patomsxy_collection[48]
+
+pbonds_collection
+pbonds_collection_sorted = pbonds_collection
+
+pbonds1 = pbonds_collection[1]
+pbonds2 = pbonds_collection[48]
+
+collect(pbonds_collection)
+
+collect(Iterators.flatten(pbonds_collection))
+
+# a2b_dict, a2p_dict, b2a_dict, b2p_dict, a2bp_dict, b2ap_dict, p2ab_dict = make_relatives(adict, bdict, pdict, bond_dict)
+
+patoms_collection
+pnoa_collection = map(length, patoms_collection)
+polygon_collection
+
+Bond(indexed_atoms_collection[1], indexed_atoms_collection[2])
+
+patoms_collection = first.(polygon_collection)
+pbonds_collection = last.(polygon_collection)
+
+# pnoa_collection = map(length, patoms_collection)
+patomsxy_collection = map(x->index2xy(x, indexed_atoms_collection), patoms_collection)
+px_collection = map(mean, map(x -> first.(x), patomsxy_collection))
+py_collection = map(mean, map(x -> last.(x), patomsxy_collection))
+
+all_bonds_directional = collect(Iterators.flatten(pbonds_collection))
+f = x -> x=>Tuple(sort(collect(x)))
+bond_dict = Dict(map(f, all_bonds_directional))
+all_bonds = unique(collect(values(bond_dict)))
+all_bonds1 = all_bonds[1]
+testb = Bond(indexed_atoms_collection[first(all_bonds1)], indexed_atoms_collection[last(all_bonds1)])
+
+getx(testb._a)
+getx(testb)
+gety(testb)
+getxy(testb)
+
+# pop!(unique!(collect(Iterators.flatten(filter!(x -> x != 0, map(x -> get(b2p_dict, x, 0), testv))))), testk)
+
+g2type, g2x, g2y, g2relatives, g2noa, g2signature = make_dicts(polygon_collection, indexed_atoms_collection)
+# @benchmark make_dicts(polygon_collection, indexed_atoms_collection)
+
+g2type
+g2x
+g2y
+g2relatives
+g2noa
+g2signature
+
+# a2b_dict, a2p_dict, b2a_dict, b2p_dict, a2bp_dict, b2ap_dict, p2ab_dict, p2p_dict, p2abp_dict = make_dicts(polygon_collection, indexed_atoms_collection)
+#
+# a2b_dict
+# a2p_dict
+# b2a_dict
+# b2p_dict
+# a2bp_dict
+# b2ap_dict
+# p2ab_dict
+# p2p_dict
+# p2abp_dict
+
+filter(x -> get(g2signature[x],6,0)==3, keys(g2signature))
+
+keys(g2signature)
+
+filter(x -> get(g2signature[x],7,0)==2 && get(g2signature[x],5,0)==2 && get(g2signature[x],6,0)==3, keys(g2signature))
+filter(x -> g2noa[x]==12, keys(g2signature))
+filter(x -> get(g2signature[x],7,0)==3, keys(g2signature))
+filter(x -> get(g2signature[x],6,0)==6, keys(g2signature))

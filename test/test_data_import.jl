@@ -6,7 +6,8 @@ using DataFrames
 export atom_xy
 export atoms_collection
 export indexed_atoms_collection
-data = import_csv("/Users/chen/Dropbox/_julia/Graphene.jl/test/test_data.csv")
+# data = import_csv("/Users/chen/Dropbox/_julia/Graphene.jl/test/test_data.csv")
+data = import_csv("/Users/chen/Dropbox/_julia/Graphene.jl/test/test_data_flower.csv")
 @test isa(data, DataFrames.DataFrame)
 @test ncol(data) == 2
 

@@ -1,7 +1,7 @@
-using DataFrames
-using DataFramesMeta
-using NearestNeighbors
-using GeometricalPredicates
+# using DataFrames
+# using DataFramesMeta
+# using NearestNeighbors
+# using GeometricalPredicates
 
 # export CAtom, Atom2D, getx, gety, geti, gete
 export Bond
@@ -38,7 +38,7 @@ function xy2atom(atom_xy)
      map(CAtom, atom_xy[1,:], atom_xy[2,:], collect(1:size(atom_xy, 2)))
 end
 
-function index2xy(x, indexed_atoms_collection)
+function index2xy_old(x, indexed_atoms_collection)
     # if length(x) == 1
     #     atom = indexed_atoms_collection[x]
     #     output = getx(atom), gety(atom)
@@ -49,6 +49,16 @@ function index2xy(x, indexed_atoms_collection)
     return output
 end
 
+function index2xy(x, indexed_atoms_collection)
+    if length(x) == 1
+        atom = indexed_atoms_collection[x[1]]
+        output = [(getx(atom), gety(atom))]
+    else
+        atoms = indexed_atoms_collection[x]
+        output = map(xx -> (getx(xx), gety(xx)), atoms)
+    end
+    return output
+end
 
 function atom_inrange(atom_knn)
     # index, bondlength, index_inrange = atom_knn
@@ -76,7 +86,8 @@ end
 function make_paths(atoms3, indexed_atoms_collection)
     a0, a1, a2, a3 = indexed_atoms_collection[atoms3]
     b1, b2, b3 = broadcast(x -> Bond(a0, x), [a1, a2, a3])
-    o12, o13, o23, o21, o31, o32 = map(orientation, [b1, b1, b2, b2, b3, b3], [a2, a3, a3, a1, a1, a2])
+    # o12, o13, o23, o21, o31, o32 = map(orientation, [b1, b1, b2, b2, b3, b3], [a2, a3, a3, a1, a1, a2])
+    o12, o13, o23, o21, o31, o32 = map(GeometricalPredicates.orientation, [b1, b1, b2, b2, b3, b3], [a2, a3, a3, a1, a1, a2])
     if     o12 * o13 == -1
         if o12 == -1
            ps1, pe1, ps2, pe2, ps3, pe3 = a3, a1, a1, a2, a2, a3
