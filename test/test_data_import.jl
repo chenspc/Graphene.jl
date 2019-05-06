@@ -14,10 +14,12 @@ data = import_csv("/Users/chen/Dropbox/_julia/Graphene.jl/test/test_data_flower.
 atom_xy = data_reshape(data)
 @test size(atom_xy)[1] == 2
 
-atoms_collection = xy2atom(atom_xy)
-indexed_atoms_collection = pairs(IndexLinear(), atoms_collection)
+# atoms_collection = xy2atom(atom_xy)
+# indexed_atoms_collection = pairs(IndexLinear(), atoms_collection)
 # @benchmark atoms_collection = xy2atom(atom_xy)
 # @benchmark indexed_atoms_collection = pairs(IndexLinear(), atoms_collection)
+
+indexed_atoms_collection = xy2atom(atom_xy)
 
 # @test typeof(atoms_collection) == Array{Graphene.Atom2D,1}
 @test typeof(atoms_collection) == Array{Atom2D,1}

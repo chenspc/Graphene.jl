@@ -179,33 +179,9 @@ getxy(testb)
 
 # pop!(unique!(collect(Iterators.flatten(filter!(x -> x != 0, map(x -> get(b2p_dict, x, 0), testv))))), testk)
 
-g2type, g2x, g2y, g2relatives, g2noa, g2signature = make_dicts(polygon_collection, indexed_atoms_collection)
-# @benchmark make_dicts(polygon_collection, indexed_atoms_collection)
+g = make_graphene(polygon_collection, indexed_atoms_collection)
 
-g2type
-g2x
-g2y
-g2relatives
-g2noa
-g2signature
-
-# a2b_dict, a2p_dict, b2a_dict, b2p_dict, a2bp_dict, b2ap_dict, p2ab_dict, p2p_dict, p2abp_dict = make_dicts(polygon_collection, indexed_atoms_collection)
-#
-# a2b_dict
-# a2p_dict
-# b2a_dict
-# b2p_dict
-# a2bp_dict
-# b2ap_dict
-# p2ab_dict
-# p2p_dict
-# p2abp_dict
-
-filter(x -> get(g2signature[x],6,0)==3, keys(g2signature))
-
-keys(g2signature)
-
-filter(x -> get(g2signature[x],7,0)==2 && get(g2signature[x],5,0)==2 && get(g2signature[x],6,0)==3, keys(g2signature))
-filter(x -> g2noa[x]==12, keys(g2signature))
-filter(x -> get(g2signature[x],7,0)==3, keys(g2signature))
-filter(x -> get(g2signature[x],6,0)==6, keys(g2signature))
+filter(x -> get(g._signature[x],7,0)==2 && get(g._signature[x],5,0)==2 && get(g._signature[x],6,0)==3, g._id)
+filter(x -> g._noa[x]==12, g._id)
+filter(x -> get(g._signature[x],7,0)==3, g._id)
+filter(x -> get(g._signature[x],6,0)==6, g._id)

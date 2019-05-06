@@ -29,8 +29,9 @@ using BenchmarkTools
 export CAtom, Atom2D, getx, gety, geti, gete,
        Bond, getl,
        Path,
-       Polygon,
-       AbstractGElement, GElement, getid, gettype, getxy, getrelatives, getsignature, getnoa, getframe, getdataset
+       # Polygon,
+       AbstractGElement, GElement, getid, gettype, getxy, getrelatives, getsignature, getnoa, getframe, getdataset,
+       AbstractGraphene, GFrame
 
 import GeometricalPredicates: getx, gety, geta, getb
 
@@ -61,68 +62,54 @@ getl(l::Line2D) = (l._bx^2 + l._by^2)^0.5
 
 abstract type AbstractGElement end
 
-struct GElement <: AbstractGElement
-    _id::UInt64
-    _noa::Int32
-    _x::Float64
-    _y::Float64
-    _relatives::Tuple{Vararg{UInt}}
-    # _signature::Tuple{Int, Tuple{Vararg{Int}}}
-    _signature::Dict{Int,Int}
-    _frame::Int64
-    _dataset::String
-    GElement(id::UInt64,
-             noa::Int32,
-             x::Float64,
-             y::Float64,
-             relatives::Tuple{Vararg{UInt}},
-             signature::Dict{Int,Int},
-             frame::Int64,
-             dataset::String) = new(id, noa, x, y, relatives, signature, frame, dataset)
-end
-GElement() = GElement(hash(0), 0, 0., 0., (), Dict(), 0, "empty")
-getid(g::GElement) = g._id
-getnoa(g::GElement) = g._noa
-getx(g::GElement) = g._x
-gety(g::GElement) = g._y
-getxy(g::GElement) = (getx(g), gety(g))
-getrelatives(g::GElement) = g._relatives
-getsignature(g::GElement) = g._signature
-getframe(g::GElement) = g._frame
-getdataset(g::GElement) = g._dataset
-
+# struct GElement <: AbstractGElement
+#     _id::UInt64
+#     _noa::Int32
+#     _x::Float64
+#     _y::Float64
+#     _relatives::Tuple{Vararg{UInt}}
+#     # _signature::Tuple{Int, Tuple{Vararg{Int}}}
+#     _signature::Dict{Int,Int}
+#     _frame::Int64
+#     _dataset::String
+#     GElement(id::UInt64, noa::Int32, x::Float64, y::Float64, relatives::Tuple{Vararg{UInt}}, signature::Dict{Int,Int}, frame::Int64, dataset::String) = new(id, noa, x, y, relatives, signature, frame, dataset)
+# end
+# GElement() = GElement(hash(0), 0, 0., 0., (), Dict(), 0, "empty")
+# getid(g::GElement) = g._id
+# getnoa(g::GElement) = g._noa
+# getx(g::GElement) = g._x
+# gety(g::GElement) = g._y
+# getxy(g::GElement) = (getx(g), gety(g))
+# getrelatives(g::GElement) = g._relatives
+# getsignature(g::GElement) = g._signature
+# getframe(g::GElement) = g._frame
+# getdataset(g::GElement) = g._dataset
+#
 abstract type AbstractGraphene end
 
 struct GFrame <: AbstractGraphene
-    id::Array{UInt64,1}
-    type::Dict{UInt64,String}
-    x::Dict{UInt64,Float64}
-    y::Dict{UInt64,Float64}
-    relatives::Dict{UInt, Vector{UInt}}
-    signature::Dict{UInt, Dict{Int,Int}}
-    noa::Int32
-    frame::Int64
-    dataset::String
-    GFrame(id::Array{UInt64,1},
-           type::Dict{UInt64,String},
-           x::Dict{UInt64,Float64},
-           y::Dict{UInt64,Float64},
-           relatives::Dict{UInt, Vector{UInt}},
-           signature::Dict{UInt, Dict{Int,Int}},
-           noa::Int32,
-           frame::Int64,
-           dataset::String) = new(id, tpye, x, y, relatives, signature, noa, frame, dataset)
+    _id::Array{UInt64,1}
+    _type::Dict{UInt64,String}
+    _x::Dict{UInt64,Float64}
+    _y::Dict{UInt64,Float64}
+    # _relatives::Dict{UInt, Vector{UInt}}
+    _relatives::Dict{UInt64,Array{UInt64,1}}
+    _signature::Dict{UInt64, Dict{Int,Int}}
+    _noa::Dict{UInt64, Int64}
+    _frame::Int64
+    _dataset::String
+    GFrame(id::Array{UInt64,1}, type::Dict{UInt64,String}, x::Dict{UInt64,Float64}, y::Dict{UInt64,Float64}, relatives::Dict{UInt64,Array{UInt64,1}}, signature::Dict{UInt64, Dict{Int64,Int64}}, noa::Dict{UInt64,Int64}, frame::Int64, dataset::String) = new(id, type, x, y, relatives, signature, noa, frame, dataset)
 end
-getid(g::GFrame) = g.id
-gettype(g::GFrame) = g.type
-getx(g::GFrame) = g.x
-gety(g::GFrame) = g.y
+getid(g::GFrame) = g._id
+gettype(g::GFrame) = g._type
+getx(g::GFrame) = g._x
+gety(g::GFrame) = g._y
 getxy(g::GFrame) = (getx(g), gety(g))
-getrelatives(g::GFrame) = g.relatives
-getsignature(g::GFrame) = g.signature
-getnoa(g::GFrame) = g.noa
-getframe(g::GFrame) = g.frame
-getdataset(g::GFrame) = g.dataset
+getrelatives(g::GFrame) = g._relatives
+getsignature(g::GFrame) = g._signature
+getnoa(g::GFrame) = g._noa
+getframe(g::GFrame) = g._frame
+getdataset(g::GFrame) = g._dataset
 
 # struct Bond2D{T<:AbstractPoint2D} <: Line2D
 # struct Bond2D{T<:Atom2D} <: Line2D

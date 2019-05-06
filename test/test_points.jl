@@ -6,6 +6,7 @@ using HDF5
 using BenchmarkTools
 
 test_file_path = "/Users/chen/Dropbox/_julia/Graphene.jl/test/graphene_defect_nnOutput.h5"
+# test_file_path = "/Users/chen/Downloads/graphene_defect_nnOutput.h5"
 test_data = h5read(test_file_path, "Dataset1")
 # test_image = test_data[:,:,1]
 # test_centroids = make_centroids(test_image; threshold=0.5)
@@ -14,6 +15,8 @@ test_data = h5read(test_file_path, "Dataset1")
 @time test_centroids_collection = map(x->make_centroids(test_data[:,:,x]), 1:size(test_data,3))
 # ParallelMap
 # @time test_centroids_collection = pmap(x->make_centroids(test_data[:,:,x]), 1:size(test_data,3))
+
+centroids2dataframe(test_centroids_collection[1])
 
 plot_centroids(test_centroids_collection[1])
 plot_centroids(test_centroids_collection[2])

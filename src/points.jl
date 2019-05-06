@@ -22,3 +22,9 @@ end
 function plot_centroids(centroids)
     scatter(last.(centroids), first.(centroids), aspect_ratio=:equal, yflip=true, leg=false)
 end
+
+function centroids2dataframe(centroids)
+    temp = map(collect, centroids)
+    df = DataFrame(Column1 = first.(temp), Column2 = last.(temp))
+    return df
+end

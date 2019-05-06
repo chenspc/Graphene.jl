@@ -34,20 +34,26 @@ function delete_nothing(x)
     end
 end
 
+# function xy2atom(atom_xy)
+#      map(CAtom, atom_xy[1,:], atom_xy[2,:], collect(1:size(atom_xy, 2)))
+# end
+
 function xy2atom(atom_xy)
-     map(CAtom, atom_xy[1,:], atom_xy[2,:], collect(1:size(atom_xy, 2)))
+    atoms_collection = map(CAtom, atom_xy[1,:], atom_xy[2,:], collect(1:size(atom_xy, 2)))
+    indexed_atoms_collection = pairs(IndexLinear(), atoms_collection)
+    return indexed_atoms_collection
 end
 
-function index2xy_old(x, indexed_atoms_collection)
-    # if length(x) == 1
-    #     atom = indexed_atoms_collection[x]
-    #     output = getx(atom), gety(atom)
-    # else
-        atoms = indexed_atoms_collection[x]
-        output = map(xx -> (getx(xx), gety(xx)), atoms)
-    # end
-    return output
-end
+# function index2xy_old(x, indexed_atoms_collection)
+#     # if length(x) == 1
+#     #     atom = indexed_atoms_collection[x]
+#     #     output = getx(atom), gety(atom)
+#     # else
+#         atoms = indexed_atoms_collection[x]
+#         output = map(xx -> (getx(xx), gety(xx)), atoms)
+#     # end
+#     return output
+# end
 
 function index2xy(x, indexed_atoms_collection)
     if length(x) == 1
