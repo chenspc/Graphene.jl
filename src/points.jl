@@ -4,7 +4,7 @@
 # using FileIO
 # using Plots
 
-export read_nnimage, make_centroids, plot_centroids
+export read_nnimage, make_centroids, plot_centroids, centroids2dataframe
 
 function read_nnimage(image_path)
     gray_im = Gray.(load(image_path))
@@ -24,7 +24,6 @@ function plot_centroids(centroids)
 end
 
 function centroids2dataframe(centroids)
-    temp = map(collect, centroids)
-    df = DataFrame(Column1 = first.(temp), Column2 = last.(temp))
+    df = DataFrame(Column1 = first.(centroids), Column2 = last.(centroids))
     return df
 end

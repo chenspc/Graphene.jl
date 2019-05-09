@@ -179,7 +179,7 @@ getxy(testb)
 
 # pop!(unique!(collect(Iterators.flatten(filter!(x -> x != 0, map(x -> get(b2p_dict, x, 0), testv))))), testk)
 
-g = make_graphene(polygon_collection, indexed_atoms_collection)
+g = make_graphene(data)
 
 filter(x -> get(g._signature[x],7,0)==2 && get(g._signature[x],5,0)==2 && get(g._signature[x],6,0)==3, g._id)
 filter(x -> g._noa[x]==12, g._id)

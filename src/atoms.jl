@@ -94,6 +94,7 @@ function make_paths(atoms3, indexed_atoms_collection)
     b1, b2, b3 = broadcast(x -> Bond(a0, x), [a1, a2, a3])
     # o12, o13, o23, o21, o31, o32 = map(orientation, [b1, b1, b2, b2, b3, b3], [a2, a3, a3, a1, a1, a2])
     o12, o13, o23, o21, o31, o32 = map(GeometricalPredicates.orientation, [b1, b1, b2, b2, b3, b3], [a2, a3, a3, a1, a1, a2])
+    path_exist = 1
     if     o12 * o13 == -1
         if o12 == -1
            ps1, pe1, ps2, pe2, ps3, pe3 = a3, a1, a1, a2, a2, a3
@@ -113,11 +114,19 @@ function make_paths(atoms3, indexed_atoms_collection)
            ps1, pe1, ps2, pe2, ps3, pe3 = a2, a1, a1, a3, a3, a2
         end
     else
-        nothing
+        # nothing
+        path_exist = 0
     end
 
-    # paths = map(x->Tuple(map(geti,x)), [[ps1 a0 pe1], [ps2 a0 pe2], [ps3 a0 pe3]])
-    paths = Set(map(x->Tuple(map(geti,x)), [[ps1 a0 pe1], [ps2 a0 pe2], [ps3 a0 pe3]]))
+    if path_exist == 1
+        # paths = map(x->Tuple(map(geti,x)), [[ps1 a0 pe1], [ps2 a0 pe2], [ps3 a0 pe3]])
+        paths = Set(map(x->Tuple(map(geti,x)), [[ps1 a0 pe1], [ps2 a0 pe2], [ps3 a0 pe3]]))
+    else
+        # paths = nothing
+        paths = Set([])
+    end
+
+    return paths
 
 end
 
@@ -174,3 +183,7 @@ function collect_polygons(paths_collection)
     end
     return collector
 end
+
+# function graphene_model(args)
+#     body
+# end

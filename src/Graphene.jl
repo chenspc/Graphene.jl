@@ -5,7 +5,7 @@ using DataFramesMeta
 using StatsBase
 using Query
 using CSV
-using CategoricalArrays
+# using CategoricalArrays
 using Missings
 using IterTools
 using GeometricalPredicates

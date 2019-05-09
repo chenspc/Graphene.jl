@@ -1,6 +1,14 @@
 export make_graphene
 
-function make_graphene(polygon_collection, indexed_atoms_collection; frame=1, dataset="standalone_dataset")
+function make_graphene(data; max_bondlength=10.0, frame=1, dataset="standalone_dataset")
+
+    atom_xy = data_reshape(data)
+    indexed_atoms_collection = xy2atom(atom_xy)
+
+    atom_groups_collection = collect_atom_groups(atom_xy; max_bondlength=max_bondlength)
+    bonds_collection, paths_collection = collect_bonds_paths(atom_groups_collection, indexed_atoms_collection)
+    polygon_collection = collect_polygons(paths_collection)
+
     patoms_collection = first.(polygon_collection)
     pbonds_collection = last.(polygon_collection)
 
@@ -65,7 +73,12 @@ function make_graphene(polygon_collection, indexed_atoms_collection; frame=1, da
     a2bp_dict = Dict{UInt, Vector{UInt}}()
     a2noa_dict = Dict{UInt, Int}()
     for (k, v) in a2b_dict
-        a2bp_dict[k] = vcat(a2b_dict[k], a2p_dict[k])
+        # a2bp_dict[k] = vcat(a2b_dict[k], a2p_dict[k])
+        if haskey(a2p_dict, k)
+            a2bp_dict[k] = vcat(a2b_dict[k], a2p_dict[k])
+        else
+            a2bp_dict[k] = a2b_dict[k]
+        end
         a2noa_dict[k] = 1
     end
 

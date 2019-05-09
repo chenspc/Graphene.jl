@@ -22,4 +22,4 @@ atom_xy = data_reshape(data)
 indexed_atoms_collection = xy2atom(atom_xy)
 
 # @test typeof(atoms_collection) == Array{Graphene.Atom2D,1}
-@test typeof(atoms_collection) == Array{Atom2D,1}
+# @test typeof(atoms_collection) == Array{Atom2D,1}
