@@ -1,8 +1,7 @@
-export make_graphene
+export make_graphene, pack_relatives, unpack_relatives, generate_signature, find_defect, merge_stack
+function make_graphene(data; image_sampling=1, max_bondlength=10.0, frame=1, dataset="standalone_dataset")
 
-function make_graphene(data; max_bondlength=10.0, frame=1, dataset="standalone_dataset")
-
-    atom_xy = data_reshape(data)
+    atom_xy = data_reshape(data; image_sampling=image_sampling)
     indexed_atoms_collection = xy2atom(atom_xy)
 
     atom_groups_collection = collect_atom_groups(atom_xy; max_bondlength=max_bondlength)
@@ -26,27 +25,27 @@ function make_graphene(data; max_bondlength=10.0, frame=1, dataset="standalone_d
     numberof_bondids = length(all_bonds)
     numberof_polygonids = length(polygon_collection)
 
-    atomid_dict = Dict(map(x -> hash(x) => x, 1:numberof_atomids))
-    atomtype_dict = Dict(map(x -> hash(x) => "Atom", 1:numberof_atomids))
-    atomx_dict = Dict(map(x -> hash(x) => getx(indexed_atoms_collection[x]), 1:numberof_atomids))
-    atomy_dict = Dict(map(x -> hash(x) => gety(indexed_atoms_collection[x]), 1:numberof_atomids))
+    atomid_dict = Dict(map(x -> UInt32(x) => x, 1:numberof_atomids))
+    atomtype_dict = Dict(map(x -> UInt32(x) => "Atom", 1:numberof_atomids))
+    atomx_dict = Dict(map(x -> UInt32(x) => getx(indexed_atoms_collection[x]), 1:numberof_atomids))
+    atomy_dict = Dict(map(x -> UInt32(x) => gety(indexed_atoms_collection[x]), 1:numberof_atomids))
 
-    bondid_dict = Dict(map(x -> hash(numberof_atomids + x) => all_bonds[x], 1:numberof_bondids))
-    bondtype_dict = Dict(map(x -> hash(numberof_atomids + x) => "Bond", 1:numberof_bondids))
-    bondx_dict = Dict(map(x -> hash(numberof_atomids + x) => getx(Bond(indexed_atoms_collection[first(all_bonds[x])], indexed_atoms_collection[last(all_bonds[x])])), 1:numberof_bondids))
-    bondy_dict = Dict(map(x -> hash(numberof_atomids + x) => gety(Bond(indexed_atoms_collection[first(all_bonds[x])], indexed_atoms_collection[last(all_bonds[x])])), 1:numberof_bondids))
+    bondid_dict = Dict(map(x -> UInt32(numberof_atomids + x) => all_bonds[x], 1:numberof_bondids))
+    bondtype_dict = Dict(map(x -> UInt32(numberof_atomids + x) => "Bond", 1:numberof_bondids))
+    bondx_dict = Dict(map(x -> UInt32(numberof_atomids + x) => getx(Bond(indexed_atoms_collection[first(all_bonds[x])], indexed_atoms_collection[last(all_bonds[x])])), 1:numberof_bondids))
+    bondy_dict = Dict(map(x -> UInt32(numberof_atomids + x) => gety(Bond(indexed_atoms_collection[first(all_bonds[x])], indexed_atoms_collection[last(all_bonds[x])])), 1:numberof_bondids))
 
-    polygonid_dict = Dict(map(x -> hash(numberof_atomids + numberof_bondids + x) => polygon_collection[x], 1:numberof_polygonids))
-    polygontype_dict = Dict(map(x -> hash(numberof_atomids + numberof_bondids + x) => "Polygon", 1:numberof_polygonids))
-    polygonx_dict = Dict(map(x -> hash(numberof_atomids + numberof_bondids + x) => px_collection[x], 1:numberof_polygonids))
-    polygony_dict = Dict(map(x -> hash(numberof_atomids + numberof_bondids + x) => py_collection[x], 1:numberof_polygonids))
+    polygonid_dict = Dict(map(x -> UInt32(numberof_atomids + numberof_bondids + x) => polygon_collection[x], 1:numberof_polygonids))
+    polygontype_dict = Dict(map(x -> UInt32(numberof_atomids + numberof_bondids + x) => "Polygon", 1:numberof_polygonids))
+    polygonx_dict = Dict(map(x -> UInt32(numberof_atomids + numberof_bondids + x) => px_collection[x], 1:numberof_polygonids))
+    polygony_dict = Dict(map(x -> UInt32(numberof_atomids + numberof_bondids + x) => py_collection[x], 1:numberof_polygonids))
 
 #
     atomid_dict_reversed = Dict( v => k for (k, v) in atomid_dict)
     bondid_dict_reversed = merge(Dict(v => k for (k, v) in bondid_dict),
                                  Dict(reverse(v) => k for (k, v) in bondid_dict))
 
-    a2b_dict = Dict{UInt, Vector{UInt}}()
+    a2b_dict = Dict{UInt32, Vector{UInt32}}()
     for (k, v) in bondid_dict
         for vi in v
             if haskey(a2b_dict, atomid_dict_reversed[vi])
@@ -57,7 +56,7 @@ function make_graphene(data; max_bondlength=10.0, frame=1, dataset="standalone_d
         end
     end
 
-    a2p_dict = Dict{UInt, Vector{UInt}}()
+    a2p_dict = Dict{UInt32, Vector{UInt32}}()
     for (k, v) in polygonid_dict
         for vi in first(v)
             if haskey(a2p_dict, atomid_dict_reversed[vi])
@@ -70,8 +69,8 @@ function make_graphene(data; max_bondlength=10.0, frame=1, dataset="standalone_d
         end
     end
 
-    a2bp_dict = Dict{UInt, Vector{UInt}}()
-    a2noa_dict = Dict{UInt, Int}()
+    a2bp_dict = Dict{UInt32, Vector{UInt32}}()
+    a2noa_dict = Dict{UInt32, Int}()
     for (k, v) in a2b_dict
         # a2bp_dict[k] = vcat(a2b_dict[k], a2p_dict[k])
         if haskey(a2p_dict, k)
@@ -82,7 +81,7 @@ function make_graphene(data; max_bondlength=10.0, frame=1, dataset="standalone_d
         a2noa_dict[k] = 1
     end
 
-    b2p_dict = Dict{UInt, Vector{UInt}}()
+    b2p_dict = Dict{UInt32, Vector{UInt32}}()
     for (k, v) in polygonid_dict
         for vi in last(v)
             if haskey(b2p_dict, bondid_dict_reversed[bond_dict[vi]])
@@ -93,32 +92,32 @@ function make_graphene(data; max_bondlength=10.0, frame=1, dataset="standalone_d
         end
     end
 
-    b2a_dict = Dict{UInt, Vector{UInt}}()
+    b2a_dict = Dict{UInt32, Vector{UInt32}}()
     for (k, v) in bondid_dict
         b2a_dict[k] = [atomid_dict_reversed[first(v)], atomid_dict_reversed[last(v)]]
     end
 
-    b2ap_dict = Dict{UInt, Vector{UInt}}()
-    b2noa_dict = Dict{UInt, Int}()
+    b2ap_dict = Dict{UInt32, Vector{UInt32}}()
+    b2noa_dict = Dict{UInt32, Int}()
     for (k, v) in b2a_dict
         b2ap_dict[k] = vcat(b2a_dict[k], b2p_dict[k])
         b2noa_dict[k] = 2
     end
 
 
-    p2ab_dict = Dict{UInt, Vector{UInt}}()
-    p2noa_dict = Dict{UInt, Int}()
+    p2ab_dict = Dict{UInt32, Vector{UInt32}}()
+    p2noa_dict = Dict{UInt32, Int}()
     for (k, v) in polygonid_dict
         p2ab_dict[k] = vcat(map(x -> atomid_dict_reversed[x], first(v)), map(x -> bondid_dict_reversed[bond_dict[x]], last(v)))
         p2noa_dict[k] = length(first(v))
     end
 
-    p2p_dict = Dict{UInt, Vector{UInt}}()
+    p2p_dict = Dict{UInt32, Vector{UInt32}}()
     for (k, v) in p2ab_dict
         p2p_dict[k] = unique!(filter!(x -> x != 0 && x != k,collect(Iterators.flatten(map(x -> get(b2p_dict, x, 0), v)))))
     end
 
-    p2abp_dict = Dict{UInt, Vector{UInt}}()
+    p2abp_dict = Dict{UInt32, Vector{UInt32}}()
     for (k, v) in p2ab_dict
         p2abp_dict[k] = vcat(p2ab_dict[k], p2p_dict[k])
     end
@@ -126,20 +125,113 @@ function make_graphene(data; max_bondlength=10.0, frame=1, dataset="standalone_d
     g2type_dict = merge(atomtype_dict, bondtype_dict, polygontype_dict)
     g2x_dict = merge(atomx_dict, bondx_dict, polygonx_dict)
     g2y_dict = merge(atomy_dict, bondy_dict, polygony_dict)
-    g2relatives_dict = merge(a2bp_dict, b2ap_dict, p2abp_dict)
+    idkeys = collect(keys(g2x_dict))
+    g2relatives_dict_temp = merge(a2bp_dict, b2ap_dict, p2abp_dict)
+    g2relatives_dict = Dict{UInt32, String}()
+    for (k, v) in g2relatives_dict_temp
+        g2relatives_dict[k] = pack_relatives(v)
+    end
     g2noa_dict = merge(a2noa_dict, b2noa_dict, p2noa_dict)
+    # gframe_id = UInt32(numberof_atomids + numberof_bondids + numberof_polygonids + frame)
 
     g2p_dict = merge(a2p_dict, b2p_dict, p2p_dict)
-    g2signature_dict = Dict{UInt, Dict{Int,Int}}()
-    for (k, v) in g2p_dict
-        g2signature_dict[k] = countmap(values(map(x -> g2noa_dict[x], v)))
+    # g2signature_dict = Dict{UInt32, Dict{Int,Int}}()
+    g2signature_dict = Dict{UInt32, String}()
+    max_pside = 21
+    max_pcount = 255
+    empty_signature = fill(UInt8(0), max_pside)
+
+    # for k in idkeys
+    #     if haskey(g2p_dict, k)
+    #         g2signature_dict[k] = countmap(values(map(x -> g2noa_dict[x], g2p_dict[k])))
+    #     else
+    #         g2signature_dict[k] = Dict(0 => 1)
+    #     end
+    # end
+    for k in idkeys
+        if haskey(g2p_dict, k)
+            pcount = countmap(values(map(x -> g2noa_dict[x], g2p_dict[k])))
+            # signature_str = empty_signature
+            # for (ks, vs) in pcount
+            #     signature_str[min(ks, max_pside)] = min(vs, max_pcount)
+            # end
+            # g2signature_dict[k] = base64encode(signature_str)
+            g2signature_dict[k] = generate_signature(pcount; max_pside=max_pside, max_pcount=max_pcount)
+        end
     end
 
-    idkeys = collect(keys(g2signature_dict))
-    gframe_id = hash(numberof_atomids + numberof_bondids + numberof_polygonids + frame)
     # return a2b_dict, a2p_dict, b2a_dict, b2p_dict, a2bp_dict, b2ap_dict, p2ab_dict, p2p_dict, p2abp_dict
     # return  a2bp_dict, b2ap_dict, p2ab_dict, p2noa_dict
     # return g2type_dict, g2x_dict, g2y_dict, g2relatives_dict, g2noa_dict, g2signature_dict
-    g = GFrame(idkeys, g2type_dict, g2x_dict, g2y_dict, g2relatives_dict, g2signature_dict, g2noa_dict, frame, dataset)
-    return g
+    # g = GFrame(idkeys, g2type_dict, g2x_dict, g2y_dict, g2relatives_dict, g2signature_dict, g2noa_dict, frame, dataset)
+    # t = table((id=idkeys, type=sort_dict(g2type_dict, idkeys), noa=sort_dict(g2noa_dict, idkeys), x=sort_dict(g2x_dict, idkeys), y=sort_dict(g2y_dict, idkeys), relatives=sort_dict(g2relatives_dict, idkeys), signature=sort_dict(g2signature_dict, idkeys), frame=fill(frame, length(idkeys)), dataset=fill(dataset, length(idkeys))); pkey = :id)
+    t = table((dataset=fill(dataset, length(idkeys)), frame=fill(frame, length(idkeys)), id=idkeys, type=sort_dict(g2type_dict, idkeys), noa=sort_dict(g2noa_dict, idkeys), x=sort_dict(g2x_dict, idkeys), y=sort_dict(g2y_dict, idkeys), relatives=sort_dict(g2relatives_dict, idkeys), signature=sort_dict(g2signature_dict, idkeys)); pkey = :id)
+    # return g
+    return t
+    # return g, atom_xy, patoms_collection, indexed_atoms_collection
+end
+
+function sort_dict(dict, idkeys)
+    map(x -> get(dict, x, 0), idkeys)
+end
+
+# function dicts2db(idkeys, g2type_dict, g2x_dict, g2y_dict, g2relatives_dict, g2signature_dict, g2noa_dict, frame, dataset)
+#     body
+# end
+function pack_relatives(relatives::Array{UInt32,1})
+    base64encode(relatives)
+end
+
+function unpack_relatives(relatives_str::String)
+    reinterpret(UInt32, base64decode(relatives_str))
+end
+
+# function generate_signature(pcount::Dict{Int,Int}; max_pside=21, max_pcount=255)
+function generate_signature(pcount; max_pside=21, max_pcount=255)
+    signature_str = fill(UInt8(0), max_pside)
+    for (ks, vs) in pcount
+        signature_str[min(ks, max_pside)] = min(vs, max_pcount)
+    end
+    encoded_signature_str = base64encode(signature_str)
+    return encoded_signature_str
+end
+
+function find_defect(g_table::IndexedTable, type::String)
+    if type == "flower"
+        type_signature = generate_signature(Dict(7 => 3))
+        defects = filter(x -> (x.signature == type_signature), g_table)
+    elseif type == "butterfly"
+        type_signature = generate_signature(Dict(7 => 4, 5 => 2))
+        defects = filter(x -> (x.signature == type_signature), g_table)
+    elseif type == "both"
+        type_signature1 = generate_signature(Dict(7 => 3))
+        type_signature2 = generate_signature(Dict(7 => 4, 5 => 2))
+        defects = filter(x -> (x.signature == type_signature1) || (x.signature == type_signature2), g_table)
+    elseif type == "divacancy"
+        type_signature = generate_signature(Dict(6 => 10))
+        defects = filter(x -> (x.signature == type_signature) && (x.noa == 14), g_table)
+    elseif type == "all"
+        type_signature1 = generate_signature(Dict(7 => 3))
+        type_signature2 = generate_signature(Dict(7 => 4, 5 => 2))
+        type_signature3 = generate_signature(Dict(6 => 10))
+        defects = filter(x -> (x.signature == type_signature1) || (x.signature == type_signature2) || ((x.signature == type_signature3) && (x.noa == 14)), g_table)
+    else
+        type_signature = type
+        defects = filter(x -> (x.signature == type_signature), g_table)
+    end
+    # defects = filter(x -> (x.signature == type_signature), g_table)
+    return defects
+end
+
+function merge_stack(t_stack)
+    stack_length = length(t_stack)
+    if stack_length > 1
+        t_merge = t_stack[1]
+        for i in 2:stack_length
+            t_merge = merge(t_merge, t_stack[i])
+        end
+    else
+        t_merge = t_stack
+    end
+    return t_merge
 end

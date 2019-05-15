@@ -2,6 +2,8 @@ module Graphene
 
 using DataFrames
 using DataFramesMeta
+using JuliaDB
+using OnlineStats
 using StatsBase
 using Query
 using CSV
@@ -20,6 +22,7 @@ using HDF5
 # using Gadfly
 using Plots
 using Random
+using Base64
 # using Luxor
 # using Colors
 # using Images
@@ -63,7 +66,7 @@ getl(l::Line2D) = (l._bx^2 + l._by^2)^0.5
 abstract type AbstractGElement end
 
 # struct GElement <: AbstractGElement
-#     _id::UInt64
+#     _id::UInt32
 #     _noa::Int32
 #     _x::Float64
 #     _y::Float64
@@ -72,7 +75,7 @@ abstract type AbstractGElement end
 #     _signature::Dict{Int,Int}
 #     _frame::Int64
 #     _dataset::String
-#     GElement(id::UInt64, noa::Int32, x::Float64, y::Float64, relatives::Tuple{Vararg{UInt}}, signature::Dict{Int,Int}, frame::Int64, dataset::String) = new(id, noa, x, y, relatives, signature, frame, dataset)
+#     GElement(id::UInt32, noa::Int32, x::Float64, y::Float64, relatives::Tuple{Vararg{UInt}}, signature::Dict{Int,Int}, frame::Int64, dataset::String) = new(id, noa, x, y, relatives, signature, frame, dataset)
 # end
 # GElement() = GElement(hash(0), 0, 0., 0., (), Dict(), 0, "empty")
 # getid(g::GElement) = g._id
@@ -88,17 +91,18 @@ abstract type AbstractGElement end
 abstract type AbstractGraphene end
 
 struct GFrame <: AbstractGraphene
-    _id::Array{UInt64,1}
-    _type::Dict{UInt64,String}
-    _x::Dict{UInt64,Float64}
-    _y::Dict{UInt64,Float64}
-    # _relatives::Dict{UInt, Vector{UInt}}
-    _relatives::Dict{UInt64,Array{UInt64,1}}
-    _signature::Dict{UInt64, Dict{Int,Int}}
-    _noa::Dict{UInt64, Int64}
+    _id::Array{UInt32,1}
+    _type::Dict{UInt32,String}
+    _x::Dict{UInt32,Float64}
+    _y::Dict{UInt32,Float64}
+    # _relatives::Dict{UInt32,Array{UInt32,1}}
+    _relatives::Dict{UInt32,String}
+    # _signature::Dict{UInt32, Dict{Int,Int}}
+    _signature::Dict{UInt32, String}
+    _noa::Dict{UInt32, Int64}
     _frame::Int64
     _dataset::String
-    GFrame(id::Array{UInt64,1}, type::Dict{UInt64,String}, x::Dict{UInt64,Float64}, y::Dict{UInt64,Float64}, relatives::Dict{UInt64,Array{UInt64,1}}, signature::Dict{UInt64, Dict{Int64,Int64}}, noa::Dict{UInt64,Int64}, frame::Int64, dataset::String) = new(id, type, x, y, relatives, signature, noa, frame, dataset)
+    GFrame(id::Array{UInt32,1}, type::Dict{UInt32,String}, x::Dict{UInt32,Float64}, y::Dict{UInt32,Float64}, relatives::Dict{UInt32,String}, signature::Dict{UInt32, String}, noa::Dict{UInt32,Int64}, frame::Int64, dataset::String) = new(id, type, x, y, relatives, signature, noa, frame, dataset)
 end
 getid(g::GFrame) = g._id
 gettype(g::GFrame) = g._type
