@@ -146,6 +146,6 @@ include("id_generator.jl")
 include("points.jl")
 include("atoms.jl")
 include("plotting.jl")
-include("defect.jl")
+include("defects.jl")
 
 end # module

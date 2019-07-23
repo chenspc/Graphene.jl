@@ -12,7 +12,7 @@ using Profile
 data = import_csv("/Users/chen/Dropbox/_julia/Graphene.jl/test/test_data_flower.csv")
 @benchmark g = make_graphene(data)
 g = make_graphene(data)
-FileIO.save("/Users/chen/Downloads/test_gaResult.csv", g)
+# FileIO.save("/Users/chen/Downloads/test_gaResult.csv", g)
 
 @time data_stack = import_stack("/Users/chen/Dropbox/_julia/Graphene.jl/test/graphene_defect_nnOutput.h5")
 # @time g_stack = map(x -> make_graphene(x), data_stack[1:300])
@@ -42,10 +42,25 @@ FileIO.save("/Users/chen/Downloads/test_gaResult.csv", g)
 # 0.613168 seconds (1.99 M allocations: 274.278 MiB, 21.33% gc time)
 # "AAAAAAAKAAAAAAAAAAAAAAAAAAAA"
 
+d_flower_stack_isolated = map(x -> find_isolated_defect(x, "flower"), g_stack)
+d_butterfly_stack_isolated = map(x -> find_isolated_defect(x, "butterfly"), g_stack)
+
+d_flower_merge_isolated = merge_stack(d_flower_stack_isolated)
+d_butterfly_merge_isolated = merge_stack(d_butterfly_stack_isolated)
+
+display_dfb(d_divacancy_merge, d_flower_merge, d_butterfly_merge)
+display_dfb(d_divacancy_merge, d_flower_merge, d_butterfly_merge; shape="line")
+display_dfb(d_divacancy_merge, d_flower_merge_isolated, d_butterfly_merge_isolated)
+display_dfb(d_divacancy_merge, d_flower_merge_isolated, d_butterfly_merge_isolated; shape="line")
+
 FileIO.save("/Users/chen/Dropbox/_julia/Graphene.jl/examples/d_merge.csv", d_merge)
 FileIO.save("/Users/chen/Dropbox/_julia/Graphene.jl/examples/d_flower_merge.csv", d_flower_merge)
 FileIO.save("/Users/chen/Dropbox/_julia/Graphene.jl/examples/d_butterfly_merge.csv", d_butterfly_merge)
 FileIO.save("/Users/chen/Dropbox/_julia/Graphene.jl/examples/d_divacancy_merge.csv", d_divacancy_merge)
+
+# FileIO.save("/Users/chen/Dropbox/_julia/Graphene.jl/examples/d_merge_isolated.csv", d_merge_isolated)
+FileIO.save("/Users/chen/Dropbox/_julia/Graphene.jl/examples/d_flower_merge_isolated.csv", d_flower_merge_isolated)
+FileIO.save("/Users/chen/Dropbox/_julia/Graphene.jl/examples/d_butterfly_merge_isolated.csv", d_butterfly_merge_isolated)
 
 # @time GFrame
 # 3858.473570 seconds (2.93 G allocations: 1.290 TiB, 72.25% gc time)
@@ -55,9 +70,6 @@ FileIO.save("/Users/chen/Dropbox/_julia/Graphene.jl/examples/d_divacancy_merge.c
 # make_graphene(data_stack[82])
 loadtable("/Users/chen/Downloads/test_gaResult.csv")
 a = CSV.read("/Users/chen/Downloads/test_gaResult.csv")
-
-
-
 
 # @profile make_graphene(data_stack[1])
 # Profile.print()
