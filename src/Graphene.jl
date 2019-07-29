@@ -25,8 +25,9 @@ using Random
 using Base64
 # using Luxor
 # using Colors
-# using Images
+using Images
 using Statistics
+# using Distributed
 using BenchmarkTools
 
 export CAtom, Atom2D, getx, gety, geti, gete,
@@ -141,7 +142,7 @@ getdataset(g::GFrame) = g._dataset
 # Change this to enable debugging
 const DEBUG = false
 
-include("data_import.jl")
+include("fileio.jl")
 include("id_generator.jl")
 include("points.jl")
 include("atoms.jl")

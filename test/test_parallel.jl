@@ -1,6 +1,10 @@
 using Distributed
 addprocs(4)
-@everywhere using Graphene
+nworkers()
+nprocs()
+
+@everywhere using Pkg; Pkg.activate("/Users/chen/.julia/environments/v1.1/")
+@everywhere using Graphene, FileIO, HDF5, JLD, JuliaDB, CSV, Test, BenchmarkTools, Profile, Images
 @everywhere using SharedArrays
 using Test
 using BenchmarkTools
@@ -12,7 +16,6 @@ test_new_mat = [test_mat[:,:,i] .+ i for i in 1:5]
 @benchmark test_new_mat = pmap(x -> x^20, 1:500)
 @benchmark test_new_mat = map(x -> x^20000, 1:500)
 
-nworkers()
 @time test_new_mat = map(x -> x^20000, 1:500^3)
 
 @distributed for N in 1:20
@@ -71,3 +74,19 @@ end
 @show a
 
 Sys.CPU_THREADS
+
+
+
+
+
+@time data_stack = import_stack("/Users/chen/Dropbox/_julia/Graphene.jl/test/graphene_defect_nnOutput_1.h5")
+
+@everywhere data_stack_small = $data_stack[1:100]
+a = pmap(x -> make_graphene(data_stack_small[x]; frame=x), collect(1:length(data_stack_small)))
+
+@time g_stack = map(x -> make_graphene(data_stack[x]; frame=x), collect(1:length(data_stack)))
+@time g_stack = pmap(x -> make_graphene(data_stack[x]; frame=x), [1:100])
+@time g_stack = map(x -> make_graphene(data_stack[x]; frame=x), collect(1:length(data_stack[1:100])))
+
+data_stack[1:100]
+data_stack

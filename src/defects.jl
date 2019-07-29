@@ -253,15 +253,17 @@ function find_isolated_defect(g_table::IndexedTable, type::String)
         type_signature2 = generate_signature(Dict(7 => 4, 5 => 2))
         defects = filter(x -> (x.signature == type_signature1) || (x.signature == type_signature2), g_table)
     elseif type == "divacancy"
-        type_signature = generate_signature(Dict(6 => 10))
-        defects = filter(x -> (x.signature == type_signature) && (x.noa == 14), g_table)
-        isolated_defects = defects
+        type_signature1 = generate_signature(Dict(6 => 10))
+        type_signature2 = generate_signature(Dict(5 => 2, 6 => 6))
+        defects = filter(x -> (x.signature == type_signature1) && (x.noa == 14) || (x.signature == type_signature2) && (x.noa == 8) , g_table)
+        isolated_defects = filter(x -> isolated_divacancy(g_df, x), defects)
     elseif type == "all"
         # Not yet modified for isolated defects
         type_signature1 = generate_signature(Dict(7 => 3))
         type_signature2 = generate_signature(Dict(7 => 4, 5 => 2))
         type_signature3 = generate_signature(Dict(6 => 10))
-        defects = filter(x -> (x.signature == type_signature1) || (x.signature == type_signature2) || ((x.signature == type_signature3) && (x.noa == 14)), g_table)
+        type_signature4 = generate_signature(Dict(5 => 2, 6 => 6))
+        defects = filter(x -> (x.signature == type_signature1) || (x.signature == type_signature2) || ((x.signature == type_signature3) && (x.noa == 14)) || ((x.signature == type_signature4) && (x.noa == 8)), g_table)
     else
         type_signature = type
         defects = filter(x -> (x.signature == type_signature), g_table)
@@ -313,6 +315,24 @@ function isolated_butterfly(g_df::DataFrame, defect)
     is_isolated
 end
 
+function isolated_divacancy(g_df::DataFrame, defect)
+    is_isolated = false
+
+    if defect[:noa] == 14
+        is_isolated = true
+    else
+        relatives = unpack_relatives(defect[:relatives])
+        relatives_df = g_df[findall(in(relatives), g_df.id), :]
+        selected_relatives_df = relatives_df[findall(in(5), relatives_df.noa), :]
+
+        if unique(selected_relatives_df[:signature]) == [generate_signature(Dict( 6 => 4, 8 => 1))]
+            is_isolated = true
+        end
+    end
+
+    is_isolated
+end
+
 function display_dfb(d_divacancy_merge, d_flower_merge, d_butterfly_merge; shape="")
     red_line = zeros(10000)
     green_line = zeros(10000)
@@ -343,4 +363,5 @@ function display_dfb(d_divacancy_merge, d_flower_merge, d_butterfly_merge; shape
 
     rgb_dfb = cat(red, green, blue; dims=3)
     colorview(RGB, permutedims(rgb_dfb, (3,2,1)))
+    return rgb_dfb
 end

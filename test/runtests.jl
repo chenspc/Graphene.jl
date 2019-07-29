@@ -5,7 +5,7 @@ using Test
 function tests()
     @testset "Subset of tests" begin
         include("test_id_generator.jl")
-        include("test_data_import.jl")
+        include("test_fileio.jl")
         include("test_atoms.jl")
         # include("test_bonds.jl")
         # include("test_polygons.jl")

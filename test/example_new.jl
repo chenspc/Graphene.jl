@@ -7,7 +7,9 @@ using CSV
 using Test
 using BenchmarkTools
 using Profile
+using Images
 # using ProfileView
+using MAT
 
 data = import_csv("/Users/chen/Dropbox/_julia/Graphene.jl/test/test_data_flower.csv")
 @benchmark g = make_graphene(data)
@@ -44,14 +46,20 @@ g = make_graphene(data)
 
 d_flower_stack_isolated = map(x -> find_isolated_defect(x, "flower"), g_stack)
 d_butterfly_stack_isolated = map(x -> find_isolated_defect(x, "butterfly"), g_stack)
+d_divacancy_stack_isolated = map(x -> find_isolated_defect(x, "divacancy"), g_stack)
 
 d_flower_merge_isolated = merge_stack(d_flower_stack_isolated)
 d_butterfly_merge_isolated = merge_stack(d_butterfly_stack_isolated)
+d_divacancy_merge_isolated = merge_stack(d_divacancy_stack_isolated)
 
 display_dfb(d_divacancy_merge, d_flower_merge, d_butterfly_merge)
 display_dfb(d_divacancy_merge, d_flower_merge, d_butterfly_merge; shape="line")
-display_dfb(d_divacancy_merge, d_flower_merge_isolated, d_butterfly_merge_isolated)
-display_dfb(d_divacancy_merge, d_flower_merge_isolated, d_butterfly_merge_isolated; shape="line")
+display_dfb(d_divacancy_merge_isolated, d_flower_merge_isolated, d_butterfly_merge_isolated)
+display_dfb(d_divacancy_merge_isolated, d_flower_merge_isolated, d_butterfly_merge_isolated; shape="line")
+
+a = display_dfb(d_divacancy_merge_isolated, d_flower_merge_isolated, d_butterfly_merge_isolated)
+
+FileIO.save("~/Downloads/test.png", display_dfb(d_divacancy_merge_isolated, d_flower_merge_isolated, d_butterfly_merge_isolated))
 
 FileIO.save("/Users/chen/Dropbox/_julia/Graphene.jl/examples/d_merge.csv", d_merge)
 FileIO.save("/Users/chen/Dropbox/_julia/Graphene.jl/examples/d_flower_merge.csv", d_flower_merge)
@@ -75,3 +83,7 @@ a = CSV.read("/Users/chen/Downloads/test_gaResult.csv")
 # Profile.print()
 # ProfileView.view()
 #
+@everywhere using Pkg; Pkg.activate(".")
+@everywhere using Graphene, FileIO, HDF5, JLD, JuliaDB, CSV, Test, BenchmarkTools, Profile, Images
+@everywhere data_stack_small = $data_stack[1:100]
+pmap(x -> make_graphene(data_stack_small[x]; frame=x), collect(1:length(data_stack_small)))
