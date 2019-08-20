@@ -1,13 +1,40 @@
 using Distributed
-addprocs(4)
+addprocs(6)
 nworkers()
 nprocs()
 
 @everywhere using Pkg; Pkg.activate("/Users/chen/.julia/environments/v1.1/")
+# @everywhere using Pkg; Pkg.activate("/Users/chen/.julia/environments/v1.3/")
+using Graphene, FileIO, HDF5, JLD, JuliaDB, CSV, Test, BenchmarkTools, Profile, Images
+# @everywhere Pkg.add(["FileIO", "HDF5", "JLD", "JuliaDB", "CSV", "Test", "BenchmarkTools", "Profile", "Images"])
+# @everywhere Pkg.update()
 @everywhere using Graphene, FileIO, HDF5, JLD, JuliaDB, CSV, Test, BenchmarkTools, Profile, Images
-@everywhere using SharedArrays
-using Test
-using BenchmarkTools
+# @everywhere using SharedArrays
+# using Test
+# using BenchmarkTools
+
+@time data_stack = import_stack("/Users/chen/Dropbox/_julia/Graphene.jl/test/graphene_defect_nnOutput.h5")
+# @time data_stack = import_stack("/Users/chen/Dropbox/_julia/Graphene.jl/test/graphene_defect_nnOutput.h5"; range=1:1000)
+@everywhere data_stack_shared = $data_stack
+@time g_stack_short = pmap(x -> make_graphene(data_stack_shared[x]; frame=x), 1:1000; batch_size=100, retry_delays = zeros(10))
+@time g_stack = pmap(x -> make_graphene(data_stack_shared[x]; frame=x), 1:10000; batch_size=100, retry_delays = zeros(10))
+
+@time g_stack = map(x -> make_graphene(data_stack[x]; frame=x), 1:length(data_stack))
+
+# @spawn g_stack_p = map(x -> make_graphene(data_stack[x]; frame=x), collect(1:length(data_stack[10:28])))
+# g_stack_p0 = @spawn map(x -> make_graphene(data_stack[x]; frame=x), collect(1:length(data_stack[100:281])))
+# g_stack_p0 = @spawn map(x -> make_graphene(data_stack[x]; frame=x), 1:length(data_stack[100:281]))
+# g_stack_p = @spawn map(x -> make_graphene(data_stack[x]; frame=x), collect(1:length(data_stack[300:480])))
+#
+# fetch(g_stack_p0)
+# fetch(g_stack_p)
+#
+# g_stack_p == g_stack_p0
+
+
+
+# add DataFrames DataFramesMeta JuliaDB OnlineStats StatsBase Query CSV CategoricalArrays Missings IterTools GeometricalPredicates NearestNeighbors Images ImageMorphology ImageSegmentation ImageView FileIO QuartzImageIO HDF5 Gadfly Plots Random Base64 Luxor Colors Images Statistics Distributed BenchmarkTools
+
 
 test_mat = ones(5,5,5)
 
@@ -77,16 +104,4 @@ Sys.CPU_THREADS
 
 
 
-
-
-@time data_stack = import_stack("/Users/chen/Dropbox/_julia/Graphene.jl/test/graphene_defect_nnOutput_1.h5")
-
-@everywhere data_stack_small = $data_stack[1:100]
-a = pmap(x -> make_graphene(data_stack_small[x]; frame=x), collect(1:length(data_stack_small)))
-
-@time g_stack = map(x -> make_graphene(data_stack[x]; frame=x), collect(1:length(data_stack)))
-@time g_stack = pmap(x -> make_graphene(data_stack[x]; frame=x), [1:100])
-@time g_stack = map(x -> make_graphene(data_stack[x]; frame=x), collect(1:length(data_stack[1:100])))
-
-data_stack[1:100]
-data_stack
+const foo = data_stack[1:100]

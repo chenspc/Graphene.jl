@@ -7,6 +7,7 @@ using OnlineStats
 using StatsBase
 using Query
 using CSV
+using CSVFiles
 # using CategoricalArrays
 using Missings
 using IterTools
@@ -143,10 +144,10 @@ getdataset(g::GFrame) = g._dataset
 const DEBUG = false
 
 include("fileio.jl")
-include("id_generator.jl")
 include("points.jl")
 include("atoms.jl")
 include("plotting.jl")
 include("defects.jl")
+include("parallel.jl")
 
 end # module

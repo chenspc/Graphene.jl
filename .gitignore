@@ -3,3 +3,5 @@ test/graphene_defect_nnOutput_1.h5
 .DS_Store
 bugs/*
 examples/*
+src/id_generator.jl
+test/processing*

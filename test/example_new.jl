@@ -8,6 +8,7 @@ using Test
 using BenchmarkTools
 using Profile
 using Images
+using Gadfly
 # using ProfileView
 using MAT
 
