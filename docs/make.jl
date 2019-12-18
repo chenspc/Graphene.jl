@@ -1,17 +1,17 @@
-using Documenter, Graphenet
+using Documenter, Graphene
 
 makedocs(;
-    modules=[Graphenet],
+    modules=[Graphene],
     format=Documenter.HTML(),
     pages=[
         "Home" => "index.md",
     ],
-    repo="https://github.com/chenspc/Graphenet.jl/blob/{commit}{path}#L{line}",
-    sitename="Graphenet.jl",
+    repo="https://github.com/chenspc/Graphene.jl/blob/{commit}{path}#L{line}",
+    sitename="Graphene.jl",
     authors="Chen Huang",
     assets=String[],
 )
 
 deploydocs(;
-    repo="github.com/chenspc/Graphenet.jl",
+    repo="github.com/chenspc/Graphene.jl",
 )

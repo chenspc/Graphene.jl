@@ -1,8 +1,8 @@
-# Graphenet.jl
+# Graphene.jl
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [Graphenet]
+Modules = [Graphene]
 ```
