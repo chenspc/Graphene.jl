@@ -5,3 +5,4 @@ bugs/*
 examples/*
 src/id_generator.jl
 test/processing*
+legacy/*
