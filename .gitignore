@@ -1,8 +1,8 @@
-test/graphene_defect_nnOutput.h5
-test/graphene_defect_nnOutput_1.h5
+*.jl.*.cov
+*.jl.cov
+*.jl.mem
 .DS_Store
-bugs/*
-examples/*
-src/id_generator.jl
-test/processing*
-legacy/*
+/Manifest.toml
+/dev/
+/docs/build/
+/docs/site/
