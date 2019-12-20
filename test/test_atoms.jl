@@ -19,25 +19,25 @@ test_atoms = make_atoms(test_xy)
 @test test_atoms[3] == Atom2D(3.4, 7.8, 3, "C")
 
 test_xy = [0;
-           17.3]
+           17.4]
 test_group = Set.([[1]])
 test_atom_groups = collect_atom_groups(test_xy)
 @test test_group == Set.(test_atom_groups)
 
 test_xy = [0     5;
-           17.3  8.7]
+           17.4  8.7]
 test_group = Set.([[1, 2], [2, 1]])
 test_atom_groups = collect_atom_groups(test_xy)
 @test test_group == Set.(test_atom_groups)
 
 test_xy = [0     35;
-           17.3  8.7]
+           17.4  8.7]
 test_group = Set.([[1],[2]])
 test_atom_groups = collect_atom_groups(test_xy)
 @test test_group == Set.(test_atom_groups)
 
 test_xy = [0     5    5   15   15  20  20    30  30    35;
-           17.3  8.7  26  8.7  26  0   17.3  0   17.3  8.7]
+           17.4  8.7  26.1  8.7  26.1  0   17.4  0   17.4  8.7]
 test_group = Set.([[1, 2, 3],
                     [2, 1, 4],
                     [3, 1, 5],
