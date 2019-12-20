@@ -169,198 +169,198 @@ function index2xy(x, indexed_atoms_collection)
     return output
 end
 
-function sort_dict(dict, idkeys)
-    map(x -> get(dict, x, 0), idkeys)
-end
-
-function pack_relatives(relatives::Array{UInt32,1})
-    base64encode(relatives)
-end
-
-function unpack_relatives(relatives_str::String)
-    reinterpret(UInt32, base64decode(relatives_str)) |> Vector
-end
-
-function generate_signature(pcount; max_pside=21, max_pcount=255)
-    signature_str = fill(UInt8(0), max_pside)
-    for (ks, vs) in pcount
-        signature_str[min(ks, max_pside)] = min(vs, max_pcount)
-    end
-    encoded_signature_str = base64encode(signature_str)
-    return encoded_signature_str
-end
-
-function find_defect(g_table::IndexedTable, type::String)
-    if type == "flower"
-        type_signature = generate_signature(Dict(7 => 3))
-        defects = filter(x -> (x.signature == type_signature), g_table)
-    elseif type == "butterfly"
-        type_signature = generate_signature(Dict(7 => 4, 5 => 2))
-        defects = filter(x -> (x.signature == type_signature), g_table)
-    elseif type == "both"
-        type_signature1 = generate_signature(Dict(7 => 3))
-        type_signature2 = generate_signature(Dict(7 => 4, 5 => 2))
-        defects = filter(x -> (x.signature == type_signature1) || (x.signature == type_signature2), g_table)
-    elseif type == "divacancy"
-        type_signature = generate_signature(Dict(6 => 10))
-        defects = filter(x -> (x.signature == type_signature) && (x.noa == 14), g_table)
-    elseif type == "all"
-        type_signature1 = generate_signature(Dict(7 => 3))
-        type_signature2 = generate_signature(Dict(7 => 4, 5 => 2))
-        type_signature3 = generate_signature(Dict(6 => 10))
-        defects = filter(x -> (x.signature == type_signature1) || (x.signature == type_signature2) || ((x.signature == type_signature3) && (x.noa == 14)), g_table)
-    else
-        type_signature = type
-        defects = filter(x -> (x.signature == type_signature), g_table)
-    end
-    return defects
-end
-
-function merge_stack(t_stack)
-    stack_length = length(t_stack)
-    if stack_length > 1
-        t_merge = t_stack[1]
-        for i in 2:stack_length
-            t_merge = merge(t_merge, t_stack[i])
-        end
-    else
-        t_merge = t_stack
-    end
-    return t_merge
-end
-
-function find_isolated_defect(g_table::IndexedTable, type::String)
-    g_df = DataFrame(g_table)
-    if type == "flower"
-        type_signature = generate_signature(Dict(7 => 3))
-        defects = filter(x -> (x.signature == type_signature), g_table)
-        isolated_defects = filter(x -> isolated_flower(g_df, x), defects)
-    elseif type == "butterfly"
-        type_signature = generate_signature(Dict(7 => 4, 5 => 2))
-        defects = filter(x -> (x.signature == type_signature), g_table)
-        isolated_defects = filter(x -> isolated_butterfly(g_df, x), defects)
-    elseif type == "both"
-        # Not yet modified for isolated defects
-        type_signature1 = generate_signature(Dict(7 => 3))
-        type_signature2 = generate_signature(Dict(7 => 4, 5 => 2))
-        defects = filter(x -> (x.signature == type_signature1) || (x.signature == type_signature2), g_table)
-    elseif type == "divacancy"
-        type_signature1 = generate_signature(Dict(6 => 10))
-        type_signature2 = generate_signature(Dict(5 => 2, 6 => 6))
-        defects = filter(x -> (x.signature == type_signature1) && (x.noa == 14) || (x.signature == type_signature2) && (x.noa == 8) , g_table)
-        isolated_defects = filter(x -> isolated_divacancy(g_df, x), defects)
-    elseif type == "all"
-        # Not yet modified for isolated defects
-        type_signature1 = generate_signature(Dict(7 => 3))
-        type_signature2 = generate_signature(Dict(7 => 4, 5 => 2))
-        type_signature3 = generate_signature(Dict(6 => 10))
-        type_signature4 = generate_signature(Dict(5 => 2, 6 => 6))
-        defects = filter(x -> (x.signature == type_signature1) || (x.signature == type_signature2) || ((x.signature == type_signature3) && (x.noa == 14)) || ((x.signature == type_signature4) && (x.noa == 8)), g_table)
-    else
-        type_signature = type
-        defects = filter(x -> (x.signature == type_signature), g_table)
-    end
-    return isolated_defects
-end
-
-function isolated_flower(g_df::DataFrame, defect)
-    is_isolated = false
-
-    relatives = unpack_relatives(defect[:relatives])
-    relatives_df = g_df[findall(in(relatives), g_df.id), :]
-    selected_relatives_df = relatives_df[findall(in(7), relatives_df.noa), :]
-
-    if unique(selected_relatives_df[:signature]) == [generate_signature(Dict(5 => 2, 6 => 3, 7 => 2))]
-        all_relatives = unique(collect(Iterators.flatten(collect.(map(x -> unpack_relatives(x), selected_relatives_df[:relatives])))))
-        all_relatives_df = g_df[findall(in(all_relatives), g_df.id), :]
-        pentagon_relatives_df = all_relatives_df[findall(in(5), all_relatives_df.noa), :]
-        if nrow(pentagon_relatives_df) == 3
-            is_isolated = true
-        end
-    end
-
-    is_isolated
-end
-
-function isolated_butterfly(g_df::DataFrame, defect)
-    is_isolated = false
-
-    relatives = unpack_relatives(defect[:relatives])
-    relatives_df = g_df[findall(in(relatives), g_df.id), :]
-
-    all_relatives = unique(collect(Iterators.flatten(collect.(map(x -> unpack_relatives(x), relatives_df[:relatives])))))
-    all_relatives_df = g_df[findall(in(all_relatives), g_df.id), :]
-
-    pentagon_relatives_df = all_relatives_df[findall(in(5), all_relatives_df.noa), :]
-    heptagon_relatives_df = all_relatives_df[findall(in(7), all_relatives_df.noa), :]
-
-    pentagons_sigature = pentagon_relatives_df[:signature]
-    heptagons_sigature = heptagon_relatives_df[:signature]
-
-    pentagons_check = countmap([c for c in pentagons_sigature]) == Dict(generate_signature(Dict(6 => 3, 7 => 2)) => 4)
-    heptagons_check = countmap([c for c in heptagons_sigature]) == Dict(generate_signature(Dict(5 => 2, 6 => 4, 7 => 1)) => 4)
-
-    if pentagons_check && heptagons_check
-        is_isolated = true
-    end
-
-    is_isolated
-end
-
-function isolated_divacancy(g_df::DataFrame, defect)
-    is_isolated = false
-
-    if defect[:noa] == 14
-        is_isolated = true
-    else
-        relatives = unpack_relatives(defect[:relatives])
-        relatives_df = g_df[findall(in(relatives), g_df.id), :]
-        selected_relatives_df = relatives_df[findall(in(5), relatives_df.noa), :]
-
-        if unique(selected_relatives_df[:signature]) == [generate_signature(Dict( 6 => 4, 8 => 1))]
-            is_isolated = true
-        end
-    end
-
-    is_isolated
-end
-
-function find_dfb_save(graphene_stack, output_path)
-    divacancy = merge_stack(map(x -> find_isolated_defect(x, "divacancy"), graphene_stack))
-    flower    = merge_stack(map(x -> find_isolated_defect(x, "flower"), graphene_stack))
-    butterfly = merge_stack(map(x -> find_isolated_defect(x, "butterfly"), graphene_stack))
-    dfb       = merge_stack([divacancy, flower, butterfly])
-    FileIO.save(output_path, dfb)
-end
-
-function display_dfb(d_divacancy_merge, d_flower_merge, d_butterfly_merge; shape="")
-    red_line   = zeros(10000)
-    green_line = zeros(10000)
-    blue_line  = zeros(10000)
-    red_countmap   = if ~isempty(d_divacancy_merge) countmap(DataFrame(d_divacancy_merge)[:, :frame]) else [] end
-    green_countmap = if ~isempty(d_flower_merge) countmap(DataFrame(d_flower_merge)[      :, :frame]) else [] end
-    blue_countmap  = if ~isempty(d_butterfly_merge) countmap(DataFrame(d_butterfly_merge)[:, :frame]) else [] end
-
-    for (k, v) in red_countmap
-            red_line[k] = v
-    end
-    for (k, v) in green_countmap
-            green_line[k] = v
-    end
-    for (k, v) in blue_countmap
-            blue_line[k] = v
-    end
-
-    if shape == "line"
-        red   = red_line
-        green = green_line
-        blue  = blue_line
-    else
-        red   = reshape(red_line, (100, 100))
-        green = reshape(green_line, (100, 100))
-        blue  = reshape(blue_line, (100, 100))
-    end
-
-    rgb_dfb = cat(red, green, blue; dims=3)
-    colorview(RGB, permutedims(rgb_dfb, (3,2,1)))
-end
+# function sort_dict(dict, idkeys)
+#     map(x -> get(dict, x, 0), idkeys)
+# end
+#
+# function pack_relatives(relatives::Array{UInt32,1})
+#     base64encode(relatives)
+# end
+#
+# function unpack_relatives(relatives_str::String)
+#     reinterpret(UInt32, base64decode(relatives_str)) |> Vector
+# end
+#
+# function generate_signature(pcount; max_pside=21, max_pcount=255)
+#     signature_str = fill(UInt8(0), max_pside)
+#     for (ks, vs) in pcount
+#         signature_str[min(ks, max_pside)] = min(vs, max_pcount)
+#     end
+#     encoded_signature_str = base64encode(signature_str)
+#     return encoded_signature_str
+# end
+#
+# function find_defect(g_table::IndexedTable, type::String)
+#     if type == "flower"
+#         type_signature = generate_signature(Dict(7 => 3))
+#         defects = filter(x -> (x.signature == type_signature), g_table)
+#     elseif type == "butterfly"
+#         type_signature = generate_signature(Dict(7 => 4, 5 => 2))
+#         defects = filter(x -> (x.signature == type_signature), g_table)
+#     elseif type == "both"
+#         type_signature1 = generate_signature(Dict(7 => 3))
+#         type_signature2 = generate_signature(Dict(7 => 4, 5 => 2))
+#         defects = filter(x -> (x.signature == type_signature1) || (x.signature == type_signature2), g_table)
+#     elseif type == "divacancy"
+#         type_signature = generate_signature(Dict(6 => 10))
+#         defects = filter(x -> (x.signature == type_signature) && (x.noa == 14), g_table)
+#     elseif type == "all"
+#         type_signature1 = generate_signature(Dict(7 => 3))
+#         type_signature2 = generate_signature(Dict(7 => 4, 5 => 2))
+#         type_signature3 = generate_signature(Dict(6 => 10))
+#         defects = filter(x -> (x.signature == type_signature1) || (x.signature == type_signature2) || ((x.signature == type_signature3) && (x.noa == 14)), g_table)
+#     else
+#         type_signature = type
+#         defects = filter(x -> (x.signature == type_signature), g_table)
+#     end
+#     return defects
+# end
+#
+# function merge_stack(t_stack)
+#     stack_length = length(t_stack)
+#     if stack_length > 1
+#         t_merge = t_stack[1]
+#         for i in 2:stack_length
+#             t_merge = merge(t_merge, t_stack[i])
+#         end
+#     else
+#         t_merge = t_stack
+#     end
+#     return t_merge
+# end
+#
+# function find_isolated_defect(g_table::IndexedTable, type::String)
+#     g_df = DataFrame(g_table)
+#     if type == "flower"
+#         type_signature = generate_signature(Dict(7 => 3))
+#         defects = filter(x -> (x.signature == type_signature), g_table)
+#         isolated_defects = filter(x -> isolated_flower(g_df, x), defects)
+#     elseif type == "butterfly"
+#         type_signature = generate_signature(Dict(7 => 4, 5 => 2))
+#         defects = filter(x -> (x.signature == type_signature), g_table)
+#         isolated_defects = filter(x -> isolated_butterfly(g_df, x), defects)
+#     elseif type == "both"
+#         # Not yet modified for isolated defects
+#         type_signature1 = generate_signature(Dict(7 => 3))
+#         type_signature2 = generate_signature(Dict(7 => 4, 5 => 2))
+#         defects = filter(x -> (x.signature == type_signature1) || (x.signature == type_signature2), g_table)
+#     elseif type == "divacancy"
+#         type_signature1 = generate_signature(Dict(6 => 10))
+#         type_signature2 = generate_signature(Dict(5 => 2, 6 => 6))
+#         defects = filter(x -> (x.signature == type_signature1) && (x.noa == 14) || (x.signature == type_signature2) && (x.noa == 8) , g_table)
+#         isolated_defects = filter(x -> isolated_divacancy(g_df, x), defects)
+#     elseif type == "all"
+#         # Not yet modified for isolated defects
+#         type_signature1 = generate_signature(Dict(7 => 3))
+#         type_signature2 = generate_signature(Dict(7 => 4, 5 => 2))
+#         type_signature3 = generate_signature(Dict(6 => 10))
+#         type_signature4 = generate_signature(Dict(5 => 2, 6 => 6))
+#         defects = filter(x -> (x.signature == type_signature1) || (x.signature == type_signature2) || ((x.signature == type_signature3) && (x.noa == 14)) || ((x.signature == type_signature4) && (x.noa == 8)), g_table)
+#     else
+#         type_signature = type
+#         defects = filter(x -> (x.signature == type_signature), g_table)
+#     end
+#     return isolated_defects
+# end
+#
+# function isolated_flower(g_df::DataFrame, defect)
+#     is_isolated = false
+#
+#     relatives = unpack_relatives(defect[:relatives])
+#     relatives_df = g_df[findall(in(relatives), g_df.id), :]
+#     selected_relatives_df = relatives_df[findall(in(7), relatives_df.noa), :]
+#
+#     if unique(selected_relatives_df[:signature]) == [generate_signature(Dict(5 => 2, 6 => 3, 7 => 2))]
+#         all_relatives = unique(collect(Iterators.flatten(collect.(map(x -> unpack_relatives(x), selected_relatives_df[:relatives])))))
+#         all_relatives_df = g_df[findall(in(all_relatives), g_df.id), :]
+#         pentagon_relatives_df = all_relatives_df[findall(in(5), all_relatives_df.noa), :]
+#         if nrow(pentagon_relatives_df) == 3
+#             is_isolated = true
+#         end
+#     end
+#
+#     is_isolated
+# end
+#
+# function isolated_butterfly(g_df::DataFrame, defect)
+#     is_isolated = false
+#
+#     relatives = unpack_relatives(defect[:relatives])
+#     relatives_df = g_df[findall(in(relatives), g_df.id), :]
+#
+#     all_relatives = unique(collect(Iterators.flatten(collect.(map(x -> unpack_relatives(x), relatives_df[:relatives])))))
+#     all_relatives_df = g_df[findall(in(all_relatives), g_df.id), :]
+#
+#     pentagon_relatives_df = all_relatives_df[findall(in(5), all_relatives_df.noa), :]
+#     heptagon_relatives_df = all_relatives_df[findall(in(7), all_relatives_df.noa), :]
+#
+#     pentagons_sigature = pentagon_relatives_df[:signature]
+#     heptagons_sigature = heptagon_relatives_df[:signature]
+#
+#     pentagons_check = countmap([c for c in pentagons_sigature]) == Dict(generate_signature(Dict(6 => 3, 7 => 2)) => 4)
+#     heptagons_check = countmap([c for c in heptagons_sigature]) == Dict(generate_signature(Dict(5 => 2, 6 => 4, 7 => 1)) => 4)
+#
+#     if pentagons_check && heptagons_check
+#         is_isolated = true
+#     end
+#
+#     is_isolated
+# end
+#
+# function isolated_divacancy(g_df::DataFrame, defect)
+#     is_isolated = false
+#
+#     if defect[:noa] == 14
+#         is_isolated = true
+#     else
+#         relatives = unpack_relatives(defect[:relatives])
+#         relatives_df = g_df[findall(in(relatives), g_df.id), :]
+#         selected_relatives_df = relatives_df[findall(in(5), relatives_df.noa), :]
+#
+#         if unique(selected_relatives_df[:signature]) == [generate_signature(Dict( 6 => 4, 8 => 1))]
+#             is_isolated = true
+#         end
+#     end
+#
+#     is_isolated
+# end
+#
+# function find_dfb_save(graphene_stack, output_path)
+#     divacancy = merge_stack(map(x -> find_isolated_defect(x, "divacancy"), graphene_stack))
+#     flower    = merge_stack(map(x -> find_isolated_defect(x, "flower"), graphene_stack))
+#     butterfly = merge_stack(map(x -> find_isolated_defect(x, "butterfly"), graphene_stack))
+#     dfb       = merge_stack([divacancy, flower, butterfly])
+#     FileIO.save(output_path, dfb)
+# end
+#
+# function display_dfb(d_divacancy_merge, d_flower_merge, d_butterfly_merge; shape="")
+#     red_line   = zeros(10000)
+#     green_line = zeros(10000)
+#     blue_line  = zeros(10000)
+#     red_countmap   = if ~isempty(d_divacancy_merge) countmap(DataFrame(d_divacancy_merge)[:, :frame]) else [] end
+#     green_countmap = if ~isempty(d_flower_merge) countmap(DataFrame(d_flower_merge)[      :, :frame]) else [] end
+#     blue_countmap  = if ~isempty(d_butterfly_merge) countmap(DataFrame(d_butterfly_merge)[:, :frame]) else [] end
+#
+#     for (k, v) in red_countmap
+#             red_line[k] = v
+#     end
+#     for (k, v) in green_countmap
+#             green_line[k] = v
+#     end
+#     for (k, v) in blue_countmap
+#             blue_line[k] = v
+#     end
+#
+#     if shape == "line"
+#         red   = red_line
+#         green = green_line
+#         blue  = blue_line
+#     else
+#         red   = reshape(red_line, (100, 100))
+#         green = reshape(green_line, (100, 100))
+#         blue  = reshape(blue_line, (100, 100))
+#     end
+#
+#     rgb_dfb = cat(red, green, blue; dims=3)
+#     colorview(RGB, permutedims(rgb_dfb, (3,2,1)))
+# end

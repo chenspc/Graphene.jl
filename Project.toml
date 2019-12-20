@@ -10,6 +10,7 @@ FixedPointNumbers = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
 GeometricalPredicates = "fd0ad045-b25c-564e-8f9c-8ef5c5f21267"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
+JuliaDB = "a93385a2-3734-596a-9a66-3cfbb77141e6"
 NearestNeighbors = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
 QuartzImageIO = "dca85d43-d64c-5e67-8c65-017450d5d020"
 

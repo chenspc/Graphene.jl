@@ -6,6 +6,7 @@ using HDF5: h5read
 using DataFrames
 using NearestNeighbors: KDTree, knn, inrange
 using GeometricalPredicates: AbstractPoint2D, Line2D, orientation
+using JuliaDB: IndexedTable
 import GeometricalPredicates: getx, gety, geta, getb
 
 export CAtom, Atom2D, Bond, getx, gety, getxy, geti, gete, getl
