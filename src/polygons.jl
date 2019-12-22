@@ -2,8 +2,8 @@ export make_polygons
 export path2turn
 export link_turns!
 
-function make_polygons(paths_collection)
-    turn_dict = Dict(map(path2turn, collect(paths_collection)))
+function make_polygons(paths)
+    turn_dict = Dict(map(path2turn, collect(paths)))
     collector = []
     while !isempty(turn_dict)
         push!(collector, link_turns!(turn_dict))
@@ -17,11 +17,11 @@ end
 
 function link_turns!(turn_dict)
     carrier = pop!(turn_dict, first(first(turn_dict)), "empty")
-    patoms = [first(carrier)]
-    pbonds = [carrier]
+    polygon_atoms = [first(carrier)]
+    polygon_bonds = [carrier]
     while (carrier = pop!(turn_dict, carrier, "empty")) != "empty"
-        push!(patoms, first(carrier))
-        push!(pbonds, carrier)
+        push!(polygon_atoms, first(carrier))
+        push!(polygon_bonds, carrier)
     end
-    return patoms, pbonds
+    return polygon_atoms, polygon_bonds
 end
