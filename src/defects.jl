@@ -12,42 +12,42 @@ export index2xy
 
 function make_graphene(atom_xy; image_sampling=1, max_bondlength=10.0, frame=1, dataset="standalone_dataset")
 
-    indexed_atoms_collection = make_atoms(atom_xy)
+    indexed_atoms = make_atoms(atom_xy)
 
-    atom_groups_collection = collect_atom_groups(atom_xy; max_bondlength=max_bondlength)
-    bonds_collection, paths_collection = collect_bonds_paths(atom_groups_collection, indexed_atoms_collection)
-    polygon_collection = make_polygons(paths_collection)
+    atom_groups = collect_atom_groups(atom_xy; max_bondlength=max_bondlength)
+    bonds, paths = collect_bonds_paths(atom_groups, indexed_atoms)
+    polygons = make_polygons(paths)
 
-    patoms_collection = first.(polygon_collection)
-    pbonds_collection = last.(polygon_collection)
+    polygon_atoms = first.(polygons)
+    polygon_bonds = last.(polygons)
 
-    patomsxy_collection = map(x->index2xy(x, indexed_atoms_collection), patoms_collection)
-    px_collection       = map(mean, map(x -> first.(x), patomsxy_collection))
-    py_collection       = map(mean, map(x -> last.(x), patomsxy_collection))
+    polygon_atomsxy = map(x->index2xy(x, indexed_atoms), polygon_atoms)
+    polygon_x       = map(mean, map(x -> first.(x), polygon_atomsxy))
+    polygon_y       = map(mean, map(x -> last.(x), polygon_atomsxy))
 
-    all_bonds_directional = collect(Iterators.flatten(pbonds_collection))
+    bonds_directional = collect(Iterators.flatten(polygon_bonds))
     f = x -> x=>Tuple(sort(collect(x)))
-    bond_dict = Dict(map(f, all_bonds_directional))
+    bond_dict = Dict(map(f, bonds_directional))
     all_bonds = unique(collect(values(bond_dict)))
 
-    numberof_atomids    = length(indexed_atoms_collection)
+    numberof_atomids    = length(indexed_atoms)
     numberof_bondids    = length(all_bonds)
-    numberof_polygonids = length(polygon_collection)
+    numberof_polygonids = length(polygons)
 
     atomid_dict   = Dict(map(x -> UInt32(x) => x, 1:numberof_atomids))
     atomtype_dict = Dict(map(x -> UInt32(x) => "Atom", 1:numberof_atomids))
-    atomx_dict    = Dict(map(x -> UInt32(x) => getx(indexed_atoms_collection[x]), 1:numberof_atomids))
-    atomy_dict    = Dict(map(x -> UInt32(x) => gety(indexed_atoms_collection[x]), 1:numberof_atomids))
+    atomx_dict    = Dict(map(x -> UInt32(x) => getx(indexed_atoms[x]), 1:numberof_atomids))
+    atomy_dict    = Dict(map(x -> UInt32(x) => gety(indexed_atoms[x]), 1:numberof_atomids))
 
     bondid_dict   = Dict(map(x -> UInt32(numberof_atomids + x) => all_bonds[x], 1:numberof_bondids))
     bondtype_dict = Dict(map(x -> UInt32(numberof_atomids + x) => "Bond", 1:numberof_bondids))
-    bondx_dict    = Dict(map(x -> UInt32(numberof_atomids + x) => getx(Bond(indexed_atoms_collection[first(all_bonds[x])], indexed_atoms_collection[last(all_bonds[x])])), 1:numberof_bondids))
-    bondy_dict    = Dict(map(x -> UInt32(numberof_atomids + x) => gety(Bond(indexed_atoms_collection[first(all_bonds[x])], indexed_atoms_collection[last(all_bonds[x])])), 1:numberof_bondids))
+    bondx_dict    = Dict(map(x -> UInt32(numberof_atomids + x) => getx(Bond(indexed_atoms[first(all_bonds[x])], indexed_atoms[last(all_bonds[x])])), 1:numberof_bondids))
+    bondy_dict    = Dict(map(x -> UInt32(numberof_atomids + x) => gety(Bond(indexed_atoms[first(all_bonds[x])], indexed_atoms[last(all_bonds[x])])), 1:numberof_bondids))
 
-    polygonid_dict   = Dict(map(x -> UInt32(numberof_atomids + numberof_bondids + x) => polygon_collection[x], 1:numberof_polygonids))
+    polygonid_dict   = Dict(map(x -> UInt32(numberof_atomids + numberof_bondids + x) => polygons[x], 1:numberof_polygonids))
     polygontype_dict = Dict(map(x -> UInt32(numberof_atomids + numberof_bondids + x) => "Polygon", 1:numberof_polygonids))
-    polygonx_dict    = Dict(map(x -> UInt32(numberof_atomids + numberof_bondids + x) => px_collection[x], 1:numberof_polygonids))
-    polygony_dict    = Dict(map(x -> UInt32(numberof_atomids + numberof_bondids + x) => py_collection[x], 1:numberof_polygonids))
+    polygonx_dict    = Dict(map(x -> UInt32(numberof_atomids + numberof_bondids + x) => polygon_x[x], 1:numberof_polygonids))
+    polygony_dict    = Dict(map(x -> UInt32(numberof_atomids + numberof_bondids + x) => polygon_y[x], 1:numberof_polygonids))
 
     atomid_dict_reversed = Dict( v => k for (k, v) in atomid_dict)
     bondid_dict_reversed = merge(Dict(v => k for (k, v) in bondid_dict),
@@ -158,12 +158,12 @@ function make_graphene(atom_xy; image_sampling=1, max_bondlength=10.0, frame=1, 
 end
 
 
-function index2xy(x, indexed_atoms_collection)
+function index2xy(x, indexed_atoms)
     if length(x) == 1
-        atom   = indexed_atoms_collection[x[1]]
+        atom   = indexed_atoms[x[1]]
         output = [(getx(atom), gety(atom))]
     else
-        atoms  = indexed_atoms_collection[x]
+        atoms  = indexed_atoms[x]
         output = map(xx -> (getx(xx), gety(xx)), atoms)
     end
     return output

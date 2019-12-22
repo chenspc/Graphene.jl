@@ -1,22 +1,23 @@
 using Graphene
 using Test
+using GeometricalPredicates:Point2D
 
-@test CAtom() == Atom2D(0.0, 0.0, 0, "C")
-test_atom = CAtom(1.2, 1.5, 1)
-@test test_atom == Atom2D(1.2, 1.5, 1, "C")
+# @test_broken CAtom() == Atom2D(0.0, 0.0, 0, "C")
+test_atom = Point2D(1.2, 1.5)
+# @test_broken test_atom == Atom2D(1.2, 1.5, 1, "C")
 
 @test getx(test_atom) == 1.2
 @test gety(test_atom) == 1.5
-@test geti(test_atom) == 1
-@test gete(test_atom) == "C"
-@test getxy(test_atom) == (1.2, 1.5)
+# @test_broken geti(test_atom) == 1
+# @test_broken gete(test_atom) == "C"
+# @test_broken getxy(test_atom) == (1.2, 1.5)
 
 test_xy = [1. 2. 3.4;
            5  6  7.8]
 test_atoms = make_atoms(test_xy)
-@test test_atoms[1] == Atom2D(1.0, 5.0, 1, "C")
-@test test_atoms[2] == Atom2D(2.0, 6.0, 2, "C")
-@test test_atoms[3] == Atom2D(3.4, 7.8, 3, "C")
+# @test_broken test_atoms[1] == Atom2D(1.0, 5.0, 1, "C")
+# @test_broken test_atoms[2] == Atom2D(2.0, 6.0, 2, "C")
+# @test_broken test_atoms[3] == Atom2D(3.4, 7.8, 3, "C")
 
 test_xy = [0;
            17.4]

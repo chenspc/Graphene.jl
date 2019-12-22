@@ -1,16 +1,11 @@
-# export Bond
-# export Path
-# export Polygon
-# export my_isnothing
-# export delete_nothing
-# export atom_inrange
 export make_atoms
 export collect_atom_groups
 
 function make_atoms(atom_xy)
-    atoms_collection = map(CAtom, atom_xy[1,:], atom_xy[2,:], collect(1:size(atom_xy, 2)))
-    indexed_atoms_collection = pairs(IndexLinear(), atoms_collection)
-    return indexed_atoms_collection
+    # atom_points = map(CAtom, atom_xy[1,:], atom_xy[2,:], collect(1:size(atom_xy, 2)))
+    atom_points = map(Point2D, atom_xy[1,:], atom_xy[2,:])
+    indexed_atoms = pairs(IndexLinear(), atom_points)
+    return indexed_atoms
 end
 
 function collect_atom_groups(atom_xy::Array{Float64,2}; max_bondlength=12)
@@ -44,7 +39,3 @@ end
 function my_isnothing(x)
     x != nothing
 end
-#
-# # function graphene_model(args)
-# #     body
-# # end
