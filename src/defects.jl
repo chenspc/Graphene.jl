@@ -1,4 +1,5 @@
 # export make_graphene
+export link_relatives!
 export index2xy
 # export pack_relatives
 # export unpack_relatives
@@ -10,9 +11,37 @@ export index2xy
 # export isolated_butterfly
 # export display_dfb
 
+function link_relatives!(a::AbstractGPrimitive, b::AbstractGPrimitive)
+    push!(a._relatives, b._id)
+    push!(b._relatives, a._id)
+end
+
+function link_relatives!(a::AbstractGPrimitive, b_vector::Vector{AbstractGPrimitive})
+    link_relatives!.(tuple(a), b_vector)
+end
+
+function make_gatom(indexed_atom; id_offset=0, frame=0, dataset="dataset")
+    id = first(indexed_atom) + id_offset
+    atom = last(indexed_atom)
+    GAtom(id, getx(atom), gety(atom), Set([]), "", frame, dataset)
+end
+
+function make_gbonds(indexed_atoms)
+    body
+end
+
+function make_gpolygons(indexed_atoms)
+    body
+end
+
 function make_graphene(atom_xy; image_sampling=1, max_bondlength=10.0, frame=1, dataset="standalone_dataset")
 
     indexed_atoms = make_atoms(atom_xy)
+
+    numberof_gatoms = length(indexed_atoms)
+    gatoms = map(GAtom, keys(indexed_atoms), values(indexed_atoms))
+    gbonds = map(GBond, keys(indexed_atoms), values(indexed_atoms))
+    gpolygons = map(GPolygon, keys(indexed_atoms), values(indexed_atoms))
 
     atom_groups = collect_atom_groups(atom_xy; max_bondlength=max_bondlength)
     bonds, paths = collect_bonds_paths(atom_groups, indexed_atoms)
@@ -30,7 +59,6 @@ function make_graphene(atom_xy; image_sampling=1, max_bondlength=10.0, frame=1, 
     bond_dict = Dict(map(f, bonds_directional))
     all_bonds = unique(collect(values(bond_dict)))
 
-    numberof_atomids    = length(indexed_atoms)
     numberof_bondids    = length(all_bonds)
     numberof_polygonids = length(polygons)
 
