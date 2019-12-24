@@ -8,6 +8,9 @@ using NearestNeighbors: KDTree, knn, inrange
 using GeometricalPredicates: Point2D, Line, orientation, getx, gety
 using JuliaDB: IndexedTable
 using AutoHashEquals
+using Statistics: mean
+using TupleTools
+using SparseArrays: sparse
 
 export GAtom, GBond, GPolygon, GDefect
 export get_id, get_x, get_y, get_relatives, get_signature, get_frame, get_dataset, get_noa, get_type
@@ -35,6 +38,7 @@ abstract type AbstractGDefect <: AbstractGEntry end
 end
 GAtom(id::Int, x::Float64, y::Float64, frame::Int, dataset::String) = GAtom(id, x, y, Set([]), "", frame, dataset)
 GAtom(id::Int, x::Float64, y::Float64, frame::Int) = GAtom(id, x, y, Set([]), "", frame, "dataset")
+GAtom(id::Int, x::Float64, y::Float64, relatives::Set) = GAtom(id, x, y, relatives, "", 0, "dataset")
 GAtom(id::Int, x::Float64, y::Float64) = GAtom(id, x, y, Set([]), "", 0, "dataset")
 GAtom(id::Int, p::Point2D) = GAtom(id, getx(p), gety(p), Set([]), "", 0, "dataset")
 get_noa(g::GAtom) = 1
@@ -51,6 +55,7 @@ get_type(g::GAtom) = "Atom"
 end
 GBond(id::Int, x::Float64, y::Float64, frame::Int, dataset::String) = GBond(id, x, y, Set([]), "", frame, dataset)
 GBond(id::Int, x::Float64, y::Float64, frame::Int) = GBond(id, x, y, Set([]), "", frame, "dataset")
+GBond(id::Int, x::Float64, y::Float64, relatives::Set) = GBond(id, x, y, relatives, "", 0, "dataset")
 GBond(id::Int, x::Float64, y::Float64) = GBond(id, x, y, Set([]), "", 0, "dataset")
 get_noa(g::GBond) = 2
 get_type(g::GBond) = "Bond"
@@ -84,7 +89,6 @@ get_type(g::GPolygon) = "Polygon"
     _noa      ::Int
     _type     ::String
 end
-
 get_noa(g::GDefect) = g._noa
 get_type(g::GDefect) = g._type
 

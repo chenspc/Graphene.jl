@@ -59,7 +59,7 @@ function collect_bonds_paths(atom_group_collection, indexed_atoms)
     bonds_paths_collection = map(x -> bond2path(x, indexed_atoms), atom_group_collection)
     bonds_collection = first.(bonds_paths_collection)
     paths_collection = last.(bonds_paths_collection)
-    bonds_collection = union(filter!(x -> my_isnothing(x), bonds_collection)...)
-    paths_collection = union(filter!(x -> my_isnothing(x), paths_collection)...)
+    bonds_collection = union(filter!(x -> !isnothing(x), bonds_collection)...)
+    paths_collection = union(filter!(x -> !isnothing(x), paths_collection)...)
     return bonds_collection, paths_collection
 end

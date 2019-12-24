@@ -2,7 +2,6 @@ export make_atoms
 export collect_atom_groups
 
 function make_atoms(atom_xy)
-    # atom_points = map(CAtom, atom_xy[1,:], atom_xy[2,:], collect(1:size(atom_xy, 2)))
     atom_points = map(Point2D, atom_xy[1,:], atom_xy[2,:])
     indexed_atoms = pairs(IndexLinear(), atom_points)
     return indexed_atoms
@@ -30,12 +29,8 @@ end
 
 function delete_nothing(x)
     if typeof(x) <: Array{Union{Nothing, T}} where T <: Number
-        convert(Array{Int64}, filter!(my_isnothing, x))
+        convert(Array{Int64}, filter!(x -> !isnothing(x), x))
     else
         x
     end
-end
-
-function my_isnothing(x)
-    x != nothing
 end

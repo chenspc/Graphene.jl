@@ -1,10 +1,7 @@
 using Graphene
 using Test
 using GeometricalPredicates: Point2D
-
-@test isequal([Tuple(test_xy[:,1])], index2xy(1, test_indexed_atoms))
-@test isequal([Tuple(test_xy[:,12])], index2xy(12, test_indexed_atoms))
-@test isequal(map(x -> Tuple(x), eachcol(test_xy[:,1:2:9])), index2xy(1:2:9, test_indexed_atoms))
+using Statistics: mean
 
 test_gatom = GAtom(1, 2., 3., Set([4, 5, 6, 7]), "GATOM_Signature", 8, "dataset_9")
 test_gbond = GBond(11, 22., 33., Set([44, 55, 66, 77]), "GBOND_Signature", 88, "dataset_99")
@@ -29,6 +26,7 @@ test_simple_gpolygon = GPolygon(111, 222., 333., Set([]), "", 0, "dataset", 6)
 
     @test GAtom(1, 2., 3., 0, "dataset") == test_simple_gatom
     @test GAtom(1, 2., 3., 0) == test_simple_gatom
+    @test GAtom(1, 2., 3., Set([])) == test_simple_gatom
     @test GAtom(1, 2., 3.) == test_simple_gatom
     @test GAtom(1, Point2D(2., 3.)) == test_simple_gatom
 end
@@ -47,6 +45,7 @@ end
 
     @test GBond(11, 22., 33., 0, "dataset") == test_simple_gbond
     @test GBond(11, 22., 33., 0) == test_simple_gbond
+    @test GBond(11, 22., 33., Set([])) == test_simple_gbond
     @test GBond(11, 22., 33.) == test_simple_gbond
 end
 
@@ -126,3 +125,52 @@ link_relatives!(test_gpolygon2, [test_gatom1, test_gbond1, test_gpolygon1])
 @test get_relatives(test_gbond1) == Set([44, 55, 66, 77, 222])
 @test get_relatives(test_gpolygon1) == Set([444, 555, 666, 777, 222])
 @test get_relatives(test_gpolygon2) == Set([444, 555, 666, 777, 1, 11, 111])
+
+test_gatom1 = GAtom(1, 12., 13., Set([4, 5, 6, 7]), "GATOM_Signature", 8, "dataset_9")
+test_gbond1 = GBond(11, 122., 133., Set([44, 55, 66, 77]), "GBOND_Signature", 8, "dataset_9")
+test_gbond2 = GBond(22, 222., 233., Set([44, 55, 66, 77]), "GBOND_Signature", 8, "dataset_9")
+test_gpolygon1 = GPolygon(111, 1222., 1333., Set([444, 555, 666, 777]), "GPOLYGON_Signature", 8, "dataset_9", 6)
+
+link_relatives!(test_gbond2, [test_gatom1, test_gbond1, test_gpolygon1])
+@test get_relatives(test_gatom1) == Set([4, 5, 6, 7, 22])
+@test get_relatives(test_gbond1) == Set([44, 55, 66, 77, 22])
+@test get_relatives(test_gpolygon1) == Set([444, 555, 666, 777, 22])
+
+test_gatom1 = GAtom(1, 12., 13., Set([4, 5, 6, 7]), "GATOM_Signature", 8, "dataset_9")
+test_gpolygon1 = GPolygon(111, 1222., 1333., Set([444, 555, 666, 777]), "GPOLYGON_Signature", 8, "dataset_9", 6)
+test_gpolygon2 = GPolygon(222, 2222., 2333., Set([444, 555, 666, 777]), "GPOLYGON_Signature", 8, "dataset_9", 6)
+
+link_relatives!(test_gatom1, [test_gpolygon1, test_gpolygon2])
+@test get_relatives(test_gatom1) == Set([4, 5, 6, 7, 111, 222])
+@test get_relatives(test_gpolygon1) == Set([444, 555, 666, 777, 1])
+@test get_relatives(test_gpolygon2) == Set([444, 555, 666, 777, 1])
+
+@test make_gatom(collect(test_indexed_atoms)[5]) == GAtom(5, 15., 26.1, Set([]), "", 0, "dataset")
+gatoms_vector = make_gatom.(collect(test_indexed_atoms))
+@test length(gatoms_vector) == length(test_indexed_atoms)
+@test gatoms_vector[5] == GAtom(5, 15., 26.1, Set([]), "", 0, "dataset")
+
+test_gatom1 = GAtom(1, 12., 13., Set([4, 5, 6, 7]), "GATOM_Signature", 8, "dataset_9")
+test_gatom2 = GAtom(2, 22., 23., Set([4, 5, 6, 7]), "GATOM_Signature", 8, "dataset_9")
+@test make_gbond([test_gatom1, test_gatom2], 12) == GBond(12, 17., 18., Set([1, 2]), "", 0, "dataset")
+@test make_gbond!([test_gatom1, test_gatom2], 12) == GBond(12, 17., 18., Set([1, 2]), "", 0, "dataset")
+@test test_gatom1 == GAtom(1, 12., 13., Set([4, 5, 6, 7, 12]), "GATOM_Signature", 8, "dataset_9")
+@test test_gatom2 == GAtom(2, 22., 23., Set([4, 5, 6, 7, 12]), "GATOM_Signature", 8, "dataset_9")
+
+test_bondmatrix = make_bondmatrix(test_bonds)
+@test count(!iszero, test_bondmatrix) == 30
+@test sort(unique([x for x in test_bondmatrix if !iszero(x)])) == collect(1:15)
+
+@test make_bondmatrix([(1,2)]) == [0 1; 1 0]
+@test make_bondmatrix([(1,2), (1,4), (3,4)]) == [0 1 0 2;
+                                                 1 0 0 0;
+                                                 0 0 0 3;
+                                                 2 0 3 0]
+
+test_gpolygon1 = make_gpolygon([test_gatom1, test_gatom2], [test_gbond1, test_gbond2], 111)
+test_gpolygon2 = make_gpolygon!([test_gatom1, test_gatom2], [test_gbond1, test_gbond2], 111)
+@test get_x(test_gpolygon1) == get_x(test_gpolygon2) == mean(get_x.([test_gatom1, test_gatom2]))
+@test get_y(test_gpolygon1) == get_y(test_gpolygon2) == mean(get_y.([test_gatom1, test_gatom2]))
+@test get_id(test_gpolygon1) == get_id(test_gpolygon2)
+@test get_relatives(test_gpolygon1) == Set([])
+@test get_relatives(test_gpolygon2) == Set([1, 11, 2, 22])

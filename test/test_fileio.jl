@@ -23,5 +23,3 @@ test_centroids = make_centroids(test_nnResult_stack[:,:,1])
 @test size(centroid2xy(test_centroids)) == (2, 837)
 
 @test isa(stack2xy(test_nnResult_stack), Array{Array{Float64,2},1})
-
-# @test centroid2atom(test_centroids) == make_atoms(centroid2xy(test_centroids))
