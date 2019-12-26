@@ -1,5 +1,6 @@
 using Graphene
 using Test
+export test_bonds
 
 @test isequal(path2turn((10, 11, 12)), (10, 11) => (11, 12))
 

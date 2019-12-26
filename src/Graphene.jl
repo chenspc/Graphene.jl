@@ -1,5 +1,6 @@
 module Graphene
 
+using StatsBase: countmap
 using CSV: read
 using Images: load, Gray, erode, label_components, component_centroids
 using HDF5: h5read

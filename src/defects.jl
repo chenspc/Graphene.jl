@@ -7,6 +7,9 @@ export make_bondmatrix
 export get_gbond
 export make_gpolygon
 export make_gpolygon!
+export link_bond_polygons!
+export make_signature
+export make_signature!
 # export pack_relatives
 # export unpack_relatives
 # export generate_signature
@@ -20,41 +23,36 @@ export make_gpolygon!
 function make_graphene(atom_xy; image_sampling=1, max_bondlength=10.0, frame=1, dataset="dataset")
 
     indexed_atoms = make_atoms(atom_xy)
-    numberof_gatoms = length(indexed_atoms)
+    gatom_count = length(indexed_atoms)
 
     gatoms = make_gatom.(collect(indexed_atoms))
 
     atom_groups = collect_atom_groups(atom_xy; max_bondlength=max_bondlength)
     bonds, paths = collect_bonds_paths(atom_groups, indexed_atoms)
     bondmatrix = make_bondmatrix(bonds)
-    numberof_gbonds = maximum(bondmatrix)
+    gbond_count = maximum(bondmatrix)
 
-    gbonds = map(x -> make_gbond!(x, bondmatrix[get_id.(x)...] + numberof_gatoms), [gatoms[collect(y)] for y in bonds if first(y) < last(y)])
+    gbonds = map(x -> make_gbond!(x, bondmatrix[get_id.(x)...] + gatom_count), [gatoms[collect(y)] for y in bonds if first(y) < last(y)])
 
     polygons = make_polygons(paths)
     polygon_atoms = first.(polygons)
     polygon_bonds = last.(polygons)
-    numberof_gpolygons = length(polygons)
+    gpolygon_count = length(polygons)
     polygon_gatoms = [gatoms[collect(x)] for x in polygon_atoms]
     polygon_gbonds = [gbonds[x] for x in map(x -> get_gbond(bondmatrix, x), polygon_bonds)]
-    polygon_ids = collect(range(1+numberof_gatoms+numberof_gbonds, length=numberof_gpolygons))
+    polygon_ids = collect(range(1 + gatom_count + gbond_count, length=gpolygon_count))
 
     gpolygons = map(make_gpolygon!, polygon_gatoms, polygon_gbonds, polygon_ids)
 
-    # g2signature_dict = Dict{UInt32, String}()
-    # max_pside  = 21
-    # max_pcount = 255
-    # empty_signature = fill(UInt8(0), max_pside)
-    #
-    # for k in idkeys
-    #     if haskey(g2p_dict, k)
-    #         pcount = countmap(values(map(x -> g2noa_dict[x], g2p_dict[k])))
-    #         g2signature_dict[k] = generate_signature(pcount; max_pside=max_pside, max_pcount=max_pcount)
-    #     end
-    # end
-    #
-    # t = table((dataset=fill(dataset, length(idkeys)), frame=fill(frame, length(idkeys)), id=idkeys, type=sort_dict(g2type_dict, idkeys), noa=sort_dict(g2noa_dict, idkeys), x=sort_dict(g2x_dict, idkeys), y=sort_dict(g2y_dict, idkeys), relatives=sort_dict(g2relatives_dict, idkeys), signature=sort_dict(g2signature_dict, idkeys)); pkey = :id)
-    # return t
+    gpolygon_dict = Dict([Pair(x._id, x) for x in gpolygons])
+    map(x -> link_bond_polygons!(gpolygon_dict, x), gbonds)
+
+    graphene = vcat(gatoms, gbonds, gpolygons)
+
+    noa_dict = Dict([Pair(x._id, get_noa(x)) for x in graphene])
+    map(x -> make_signature!(x, noa_dict), graphene)
+
+    return graphene
 end
 
 function link_relatives!(a, b)
@@ -111,21 +109,22 @@ function make_gpolygon!(polygon_gatoms::Vector{GAtom}, polygon_gbonds::Vector{GB
     return gpolygon
 end
 
-function make_signature(g)
-    body
+function link_bond_polygons!(gpolygon_dict, gbond::GBond)
+    gpolygon_neighbours = Tuple([gpolygon_dict[x] for x in gbond._relatives if x > gbond._id])
+    if length(gpolygon_neighbours) == 2
+        link_relatives!(gpolygon_neighbours...)
+    end
 end
 
-function make_signature!(g)
-    signature = make_signature(g)
-    g._signature = signature
-    return signature
+function make_signature(g, noa_dict)
+    count_dict = sort(countmap([noa_dict[x] for x in g._relatives]))
+    signature = join([join([string(k), "-", string(v), "|"]) for (k, v) in count_dict])
 end
 
+function make_signature!(g, noa_dict)
+    g._signature = make_signature(g, noa_dict)
+end
 
-# function sort_dict(dict, idkeys)
-#     map(x -> get(dict, x, 0), idkeys)
-# end
-#
 # function pack_relatives(relatives::Array{UInt32,1})
 #     base64encode(relatives)
 # end
