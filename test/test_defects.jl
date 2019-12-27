@@ -210,3 +210,18 @@ map(x -> make_signature!(x, test_noa_dict), test_graphene)
 @test test_gbond6 == GBond(66, 622., 633., Set([6, 1, 111, 222]), "1-2|6-2|", 8, "dataset")
 @test test_gpolygon1 == GPolygon(111, 1222., 1333., Set([1, 2, 3, 4, 5, 6, 11, 22, 33, 44, 55, 66, 111]), "1-6|2-6|6-1|", 8, "dataset", 6)
 @test test_gpolygon2 == GPolygon(222, 2222., 2333., Set([1, 2, 3, 4, 5, 6, 11, 22, 33, 44, 55, 66, 222]), "1-6|2-6|6-1|", 8, "dataset", 6)
+
+@testset "Make Graphene" begin
+    test_graphene1 = make_graphene(test_xy, max_bondlength=8, frame=12, dataset="test_dataset")
+    test_graphene2 = make_graphene(test_xy, max_bondlength=12, frame=12, dataset="test_dataset")
+    test_graphene3 = make_graphene(test_xy[:, 2], max_bondlength=8, frame=12, dataset="test_dataset")
+    test_graphene4 = make_graphene(test_xy[:, 2:4], max_bondlength=12, frame=12, dataset="test_dataset")
+    test_graphene5 = make_graphene(test_xy[:, [2,4]], max_bondlength=8, frame=12, dataset="test_dataset")
+    test_graphene6 = make_graphene(test_xy[:, [2,4]], max_bondlength=12, frame=12, dataset="test_dataset")
+    @test length(test_graphene1) == 15
+    @test length(test_graphene2) == 33
+    @test length(test_graphene3) == 1
+    @test length(test_graphene4) == 5
+    @test length(test_graphene5) == 2
+    @test length(test_graphene6) == 4
+end

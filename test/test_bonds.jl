@@ -32,7 +32,8 @@ test_atom_group = [12, 11, 13, 14]
 test_atom_group = [11, 10, 12]
 @test bond2path(test_atom_group, test_indexed_atoms) == (Set([(11, 10), (11, 12)]), Set([(10, 11, 12), (12, 11, 10)]))
 test_atom_group = [15]
-@test bond2path(test_atom_group, test_indexed_atoms) == (nothing, nothing)
+# @test bond2path(test_atom_group, test_indexed_atoms) == (nothing, nothing)
+@test bond2path(test_atom_group, test_indexed_atoms) == (Set([]), Set([]))
 
 test_atom_group_collection = [[1, 2, 3],
                               [2, 1, 4],

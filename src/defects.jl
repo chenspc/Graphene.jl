@@ -10,9 +10,6 @@ export make_gpolygon!
 export link_bond_polygons!
 export make_signature
 export make_signature!
-# export pack_relatives
-# export unpack_relatives
-# export generate_signature
 # export find_defect
 # export merge_stack
 # export find_isolated_defect
@@ -29,6 +26,10 @@ function make_graphene(atom_xy; image_sampling=1, max_bondlength=10.0, frame=1, 
 
     atom_groups = collect_atom_groups(atom_xy; max_bondlength=max_bondlength)
     bonds, paths = collect_bonds_paths(atom_groups, indexed_atoms)
+    if length(bonds) == 0
+        graphene = gatoms
+        return graphene
+    end
     bondmatrix = make_bondmatrix(bonds)
     gbond_count = maximum(bondmatrix)
 
@@ -117,31 +118,19 @@ function link_bond_polygons!(gpolygon_dict, gbond::GBond)
 end
 
 function make_signature(g, noa_dict)
-    count_dict = sort(countmap([noa_dict[x] for x in g._relatives]))
-    signature = join([join([string(k), "-", string(v), "|"]) for (k, v) in count_dict])
+    if isempty(g._relatives)
+        signature = "lone atom"
+    else
+        count_dict = sort(countmap([noa_dict[x] for x in g._relatives]))
+        signature = join([join([string(k), "-", string(v), "|"]) for (k, v) in count_dict])
+    end
+    return signature
 end
 
 function make_signature!(g, noa_dict)
     g._signature = make_signature(g, noa_dict)
 end
 
-# function pack_relatives(relatives::Array{UInt32,1})
-#     base64encode(relatives)
-# end
-#
-# function unpack_relatives(relatives_str::String)
-#     reinterpret(UInt32, base64decode(relatives_str)) |> Vector
-# end
-#
-# function generate_signature(pcount; max_pside=21, max_pcount=255)
-#     signature_str = fill(UInt8(0), max_pside)
-#     for (ks, vs) in pcount
-#         signature_str[min(ks, max_pside)] = min(vs, max_pcount)
-#     end
-#     encoded_signature_str = base64encode(signature_str)
-#     return encoded_signature_str
-# end
-#
 # function find_defect(g_table::IndexedTable, type::String)
 #     if type == "flower"
 #         type_signature = generate_signature(Dict(7 => 3))
