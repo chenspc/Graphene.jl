@@ -122,9 +122,9 @@ function make_signature(g, noa_dict)
         signature = "lone atom"
     else
         relatives = [noa_dict[x] for x in g._relatives]
-        first_digit = minimum(relatives)
-        count_vector = counts(relatives)
-        signature = join([string(i+first_digit-1, "-", count_vector[i], "|") for i in 1:length(count_vector) if !iszero(count_vector[i])])
+        largest_relative = maximum(relatives)
+        count_vector = counts(relatives, largest_relative)
+        signature = join([string(i, "-", count_vector[i], "|") for i in 1:length(count_vector) if !iszero(count_vector[i])])
     end
     return signature
 end
