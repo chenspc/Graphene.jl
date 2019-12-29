@@ -55,9 +55,9 @@ function bond2path(atom_group::Array{Int64,1}, indexed_atoms)
     return bonds, paths
 end
 
-function collect_bonds_paths(atom_group_collection, indexed_atoms)
-    bonds_paths_collection = map(x -> bond2path(x, indexed_atoms), atom_group_collection)
-    bonds_collection = union(first.(bonds_paths_collection)...)
-    paths_collection = union(last.(bonds_paths_collection)...)
-    return bonds_collection, paths_collection
+function collect_bonds_paths(atoms_groups, indexed_atoms)
+    bonds_paths_collection = map(x -> bond2path(x, indexed_atoms), atoms_groups)
+    bonds = union(first.(bonds_paths_collection)...)
+    paths = union(last.(bonds_paths_collection)...)
+    return bonds, paths
 end

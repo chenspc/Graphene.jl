@@ -33,7 +33,7 @@ function make_graphene(atom_xy; image_sampling=1, max_bondlength=10.0, frame=1, 
     bondmatrix = make_bondmatrix(bonds)
     gbond_count = maximum(bondmatrix)
 
-    gbonds = map(x -> make_gbond!(x, bondmatrix[get_id.(x)...] + gatom_count), [gatoms[collect(y)] for y in bonds if first(y) < last(y)])
+    gbonds = map(x -> make_gbond!(x, bondmatrix[get_id.(x)...] + gatom_count), [gatoms[collect(y)] for y in Set(sort.(collect.(bonds)))])
 
     polygons = make_polygons(paths)
     polygon_atoms = first.(polygons)
