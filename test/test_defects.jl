@@ -6,7 +6,7 @@ using Statistics: mean
 test_gatom = GAtom(1, 2., 3., Set([4, 5, 6, 7]), "GATOM_Signature", 8, "dataset_9")
 test_gbond = GBond(11, 22., 33., Set([44, 55, 66, 77]), "GBOND_Signature", 88, "dataset_99")
 test_gpolygon = GPolygon(111, 222., 333., Set([444, 555, 666, 777]), "GPOLYGON_Signature", 888, "dataset_999", 6)
-test_gdefect = GDefect(1111, 2222., 3333., Set([4444, 5555, 6666, 7777]), "GDEFECT_Signature", 8888, "dataset_9999", 14, "Divacancy")
+test_gdefect = GDefect(1111, 2222., 3333., Set([4444, 5555, 6666, 7777]), "GDEFECT_Signature", 8888, "dataset_9999", 14, Set([1, 11, 111]), "Divacancy")
 
 test_simple_gatom = GAtom(1, 2., 3., Set([]), "", 0, "dataset")
 test_simple_gbond = GBond(11, 22., 33., Set([]), "", 0, "dataset")
@@ -76,6 +76,7 @@ end
     @test get_frame(test_gdefect) == 8888
     @test get_dataset(test_gdefect) == "dataset_9999"
     @test get_noa(test_gdefect) == 14
+    @test get_members(test_gdefect) == Set([1, 11, 111])
     @test get_type(test_gdefect) == "Divacancy"
 end
 
@@ -224,4 +225,41 @@ map(x -> make_signature!(x, test_noa_dict), test_graphene)
     @test length(test_graphene4) == 5
     @test length(test_graphene5) == 2
     @test length(test_graphene6) == 4
+
+    @test get_id.(test_graphene1) == collect(1:length(test_graphene1))
+    @test get_id.(test_graphene2) == collect(1:length(test_graphene2))
+end
+
+test_defect_image = import_stack("test_files/test_defect_bw.h5")
+test_graphene = make_graphene(centroid2xy(make_centroids(test_defect_image)), max_bondlength=20)
+
+test_flower = find_defect(test_graphene, "Flower") |> first
+test_divacancy = find_defect(test_graphene, "Divacancy") |> first
+test_butterfly = find_defect(test_graphene, "Butterfly") |> first
+
+@testset "Flower" begin
+    @test get_id(test_flower) == length(test_graphene) + 1
+    @test get_frame(test_flower) == 0
+    @test get_dataset(test_flower) == "dataset"
+    @test get_noa(test_flower) == 22
+    @test length(get_members(test_flower)) == 55
+    @test get_type(test_flower) == "Flower"
+end
+
+@testset "Divacancy" begin
+    @test get_id(test_divacancy) == length(test_graphene) + 1
+    @test get_frame(test_divacancy) == 0
+    @test get_dataset(test_divacancy) == "dataset"
+    @test get_noa(test_divacancy) == 14
+    @test length(get_members(test_divacancy)) == 33
+    @test get_type(test_divacancy) == "Divacancy"
+end
+
+@testset "Butterfly" begin
+    @test get_id(test_butterfly) == length(test_graphene) + 1
+    @test get_frame(test_butterfly) == 0
+    @test get_dataset(test_butterfly) == "dataset"
+    @test get_noa(test_butterfly) == 30
+    @test length(get_members(test_butterfly)) == 77
+    @test get_type(test_butterfly) == "Butterfly"
 end

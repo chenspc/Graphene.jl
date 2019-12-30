@@ -14,7 +14,7 @@ using TupleTools
 using SparseArrays: sparse
 
 export GAtom, GBond, GPolygon, GDefect
-export get_id, get_x, get_y, get_relatives, get_signature, get_frame, get_dataset, get_noa, get_type
+export get_id, get_x, get_y, get_relatives, get_signature, get_frame, get_dataset, get_noa, get_type, get_members
 
 abstract type AbstractGEntry end
 get_id(g::AbstractGEntry) = g._id
@@ -25,7 +25,13 @@ get_signature(g::AbstractGEntry) = g._signature
 get_frame(g::AbstractGEntry) = g._frame
 get_dataset(g::AbstractGEntry) = g._dataset
 
+isatom(g::AbstractGEntry) = isequal(get_type(g), "Atom")
+isbond(g::AbstractGEntry) = isequal(get_type(g), "Bond")
+ispolygon(g::AbstractGEntry) = isequal(get_type(g), "Polygon")
+
 abstract type AbstractGPrimitive <: AbstractGEntry end
+get_members(g::AbstractGPrimitive) = Set(g._id)
+
 abstract type AbstractGDefect <: AbstractGEntry end
 
 @auto_hash_equals mutable struct GAtom <: AbstractGPrimitive
@@ -88,9 +94,12 @@ get_type(g::GPolygon) = "Polygon"
     _dataset  ::String
 
     _noa      ::Int
+    _members  ::Set{Int}
     _type     ::String
 end
+# GDefect(id::Int, marker::AbstractGEntry, relatives, sigature, noa, members, type) = GDefect(id, get_x(marker), get_y(marker), relatives, signature, get_frame(marker), get_dataset(marker), noa, members, type)
 get_noa(g::GDefect) = g._noa
+get_members(g::GDefect) = g._members
 get_type(g::GDefect) = g._type
 
 include("fileio.jl")
