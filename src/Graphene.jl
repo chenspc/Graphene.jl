@@ -98,7 +98,6 @@ get_type(g::GPolygon) = "Polygon"
     _members  ::Set{Int}
     _type     ::String
 end
-# GDefect(id::Int, marker::AbstractGEntry, relatives, sigature, noa, members, type) = GDefect(id, get_x(marker), get_y(marker), relatives, signature, get_frame(marker), get_dataset(marker), noa, members, type)
 get_noa(g::GDefect) = g._noa
 get_members(g::GDefect) = g._members
 get_type(g::GDefect) = g._type
