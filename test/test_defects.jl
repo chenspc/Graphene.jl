@@ -23,6 +23,8 @@ test_simple_gpolygon = GPolygon(111, 222., 333., Set([]), "", 0, "dataset", 6)
     @test get_dataset(test_gatom) == "dataset_9"
     @test get_noa(test_gatom) == 1
     @test get_type(test_gatom) == "Atom"
+    @test isatom(test_gatom)
+    @test get_members(test_gatom) == Set([1])
 
     @test GAtom(1, 2., 3., 0, "dataset") == test_simple_gatom
     @test GAtom(1, 2., 3., 0) == test_simple_gatom
@@ -42,6 +44,8 @@ end
     @test get_dataset(test_gbond) == "dataset_99"
     @test get_noa(test_gbond) == 2
     @test get_type(test_gbond) == "Bond"
+    @test isbond(test_gbond)
+    @test get_members(test_gbond) == Set([11])
 
     @test GBond(11, 22., 33., 0, "dataset") == test_simple_gbond
     @test GBond(11, 22., 33., 0) == test_simple_gbond
@@ -60,6 +64,8 @@ end
     @test get_dataset(test_gpolygon) == "dataset_999"
     @test get_noa(test_gpolygon) == 6
     @test get_type(test_gpolygon) == "Polygon"
+    @test ispolygon(test_gpolygon)
+    @test get_members(test_gpolygon) == Set([111])
 
     @test GPolygon(111, 222., 333., 0, "dataset", 6) == test_simple_gpolygon
     @test GPolygon(111, 222., 333., 0, 6) == test_simple_gpolygon

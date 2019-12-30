@@ -15,6 +15,7 @@ using SparseArrays: sparse
 
 export GAtom, GBond, GPolygon, GDefect
 export get_id, get_x, get_y, get_relatives, get_signature, get_frame, get_dataset, get_noa, get_type, get_members
+export isatom, isbond, ispolygon
 
 abstract type AbstractGEntry end
 get_id(g::AbstractGEntry) = g._id
