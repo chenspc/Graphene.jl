@@ -243,15 +243,18 @@ test_flower = first(find_defect(test_graphene, "Flower"))
 test_divacancy = first(find_defect(test_graphene, "Divacancy"))
 test_butterfly = first(find_defect(test_graphene, "Butterfly"))
 test_stonewales = first(find_defect(test_graphene, "Stone-Wales"))
-test_defects = find_defect(test_graphene, "Flower", "Divacancy", "Butterfly", "Stone-Wales")
+test_5775 = first(find_defect(test_graphene, "5775"))
+test_defects = find_defect(test_graphene, "Flower", "Divacancy", "Butterfly", "Stone-Wales", "5775")
 test_defects[1]._id = length(test_graphene) + 1
 test_defects[2]._id = length(test_graphene) + 1
 test_defects[3]._id = length(test_graphene) + 1
 test_defects[4]._id = length(test_graphene) + 1
+test_defects[5]._id = length(test_graphene) + 1
 @test test_defects[1] == test_flower
 @test test_defects[2] == test_divacancy
 @test test_defects[3] == test_butterfly
 @test test_defects[4] == test_stonewales
+@test test_defects[5] == test_5775
 
 @testset "Flower" begin
     @test get_id(test_flower) == length(test_graphene) + 1
@@ -287,4 +290,13 @@ end
     @test get_noa(test_stonewales) == 16
     @test length(get_members(test_stonewales)) == 39
     @test get_type(test_stonewales) == "Stone-Wales"
+end
+
+@testset "5775" begin
+    @test get_id(test_5775) == length(test_graphene) + 1
+    @test get_frame(test_5775) == 0
+    @test get_dataset(test_5775) == "dataset"
+    @test get_noa(test_5775) == 18
+    @test length(get_members(test_5775)) == 43
+    @test get_type(test_5775) == "5775"
 end
