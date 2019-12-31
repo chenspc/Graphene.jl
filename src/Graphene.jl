@@ -6,7 +6,7 @@ using Images: load, Gray, erode, label_components, component_centroids
 using HDF5: h5read
 using DataFrames
 using NearestNeighbors: KDTree, knn, inrange
-using GeometricalPredicates: Point2D, Line, orientation, getx, gety
+using GeometricalPredicates: Point2D, Line, orientation, getx, gety, length2
 using JuliaDB: IndexedTable
 using AutoHashEquals
 using Statistics: mean
