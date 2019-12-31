@@ -239,9 +239,19 @@ end
 test_defect_image = import_stack("test_files/test_defect_bw.h5")
 test_graphene = make_graphene(centroid2xy(make_centroids(test_defect_image)), max_bondlength=20)
 
-test_flower = find_defect(test_graphene, "Flower") |> first
-test_divacancy = find_defect(test_graphene, "Divacancy") |> first
-test_butterfly = find_defect(test_graphene, "Butterfly") |> first
+test_flower = first(find_defect(test_graphene, "Flower"))
+test_divacancy = first(find_defect(test_graphene, "Divacancy"))
+test_butterfly = first(find_defect(test_graphene, "Butterfly"))
+test_stonewales = first(find_defect(test_graphene, "Stone-Wales"))
+test_defects = find_defect(test_graphene, "Flower", "Divacancy", "Butterfly", "Stone-Wales")
+test_defects[1]._id = length(test_graphene) + 1
+test_defects[2]._id = length(test_graphene) + 1
+test_defects[3]._id = length(test_graphene) + 1
+test_defects[4]._id = length(test_graphene) + 1
+@test test_defects[1] == test_flower
+@test test_defects[2] == test_divacancy
+@test test_defects[3] == test_butterfly
+@test test_defects[4] == test_stonewales
 
 @testset "Flower" begin
     @test get_id(test_flower) == length(test_graphene) + 1
@@ -268,4 +278,13 @@ end
     @test get_noa(test_butterfly) == 30
     @test length(get_members(test_butterfly)) == 77
     @test get_type(test_butterfly) == "Butterfly"
+end
+
+@testset "Stone-Wales" begin
+    @test get_id(test_stonewales) == length(test_graphene) + 1
+    @test get_frame(test_stonewales) == 0
+    @test get_dataset(test_stonewales) == "dataset"
+    @test get_noa(test_stonewales) == 16
+    @test length(get_members(test_stonewales)) == 39
+    @test get_type(test_stonewales) == "Stone-Wales"
 end

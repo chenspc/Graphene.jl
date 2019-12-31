@@ -13,6 +13,7 @@ using Statistics: mean
 using TupleTools
 using SparseArrays: sparse
 
+export AbstractGEntry, AbstractGPrimitive, AbstractGDefect
 export GAtom, GBond, GPolygon, GDefect
 export get_id, get_x, get_y, get_relatives, get_signature, get_frame, get_dataset, get_noa, get_type, get_members
 export isatom, isbond, ispolygon
