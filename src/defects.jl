@@ -10,9 +10,6 @@ export make_gpolygon!
 export link_bond_polygons!
 export make_signature
 export make_signature!
-# export is_stonewales_bond
-# export is_5775_bond
-# export is_stonewales
 export common_members
 export common_relatives
 export find_defect
@@ -21,11 +18,9 @@ export find_5775
 export find_divacancy
 export find_flower
 export find_butterfly
-# export make_defect
 export filter_relatives_by_type
 export filter_members_by_type
 export stepout
-# export display_dfb
 
 function make_graphene(atom_xy; image_sampling=1, max_bondlength=10.0, frame=1, dataset="dataset")
 
@@ -158,12 +153,6 @@ function find_stonewales(graphene, area)
     return defects
 end
 find_stonewales(graphene) = find_stonewales(graphene, graphene)
-# function is_stonewales_bond(graphene, g)
-#      condition1 = get_signature(g) == "7-2|"
-#      condition2 = get_type(g) == "Bond"
-#      condition3 = unique(get_signature.(filter_relatives_by_type(graphene, g, "Atom"))) == ["5-1|7-2|"]
-#      condition1 && condition2 && condition3
-# end
 
 function find_5775(graphene, area)
     defects = GDefect[]
@@ -183,17 +172,6 @@ function find_5775(graphene, area)
     return defects
 end
 find_5775(graphene) = find_5775(graphene, graphene)
-# function is_5775_bond(graphene, g)
-#      condition1 = get_signature(g) == "7-2|"
-#      condition2 = get_type(g) == "Bond"
-#      key_gatoms = filter_relatives_by_type(graphene, g, "Atom")
-#      condition3 = unique(get_signature.(key_gatoms)) == ["6-1|7-2|"]
-#      gpolygon_members = filter_relatives_by_type(graphene, g, "Polygon")
-#      condition4 = unique(get_signature.(gpolygon_members)) == ["5-1|6-5|7-1|"]
-#      key_gpolygons = filter(x -> get_noa(x) == 6, vcat([filter_relatives_by_type(graphene, x, "Polygon") for x in key_gatoms]...))
-#      condition5 = unique(get_signature.(key_gpolygons)) == ["5-1|6-3|7-2|"]
-#      condition1 && condition2 && condition3 && condition4 && condition5
-# end
 
 function find_divacancy(graphene, area)
     defects = GDefect[]
@@ -280,30 +258,6 @@ function find_defect(graphene, type::String)
     end
     return defects
 end
-# function find_defect(graphene, type::String)
-#     id_offset = maximum(get_id.(graphene))
-#     if type == "Stone-Wales"
-#         markers = filter(x -> is_stonewales_bond(graphene, x), graphene)
-#     elseif type == "5775"
-#         markers = filter(x -> is_5775_bond(graphene, x), graphene)
-#     else
-#         if type == "Flower"
-#             type_signature = "7-3|"
-#             gtype = "Atom"
-#         elseif type == "Butterfly"
-#             type_signature = "5-2|7-4|"
-#             gtype = "Polygon"
-#         elseif type == "Divacancy"
-#             type_signature = "5-2|6-6|"
-#             gtype = "Polygon"
-#         else
-#             type_signature = ""
-#             gtype = ""
-#         end
-#         markers = filter(x -> get_signature(x) == type_signature && get_type(x) == gtype, graphene)
-#     end
-#     map(x -> make_defect(graphene, markers[x], id_offset+x), collect(1:length(markers)))
-# end
 
 function find_defect(graphene, types...)
     id_offset = maximum(get_id.(graphene))
@@ -313,83 +267,6 @@ function find_defect(graphene, types...)
     end
     return defects
 end
-
-# function make_defect(graphene, marker, id)
-#     if get_type(marker) == "Atom"
-#         gbond_members = filter_relatives_by_type(graphene, marker, "Bond")
-#         gatom_members = vcat([filter_relatives_by_type(graphene, x, "Atom") for x in gbond_members]...)
-#         gpolygon_members = vcat([filter_relatives_by_type(graphene, x, "Polygon") for x in gatom_members]...)
-#         if get_signature(marker) == "7-3|"
-#             type = "Flower"
-#         else
-#             type = "Complex"
-#         end
-#     elseif get_type(marker) == "Bond"
-#             gatom_members = filter_relatives_by_type(graphene, marker, "Atom")
-#             if get_signature(marker) == "7-2|"
-#                 if unique(get_signature.(gatom_members)) == ["5-1|7-2|"]
-#                     gpolygon_members = filter_relatives_by_type(graphene, marker, "Polygon")
-#                     gpolygon_members = vcat([filter_relatives_by_type(graphene, x, "Polygon") for x in gatom_members]...)
-#                     relatives = setdiff(vcat([filter_relatives_by_type(graphene, x, "Polygon") for x in gpolygon_members]...), gpolygon_members)
-#                 # if unique(get_noa.(relatives)) == [6]
-#                     type = "Stone-Wales"
-#                 else
-#                     type = "Complex"
-#                 end
-#                 if unique(get_signature.(gatom_members)) == ["6-1|7-2|"]
-#                     gpolygon_members = filter_relatives_by_type(graphene, marker, "Polygon")
-#                     gpolygon_members = vcat([filter_relatives_by_type(graphene, x, "Polygon") for x in gpolygon_members]...) |> unique
-#                     filter!(x -> get_noa(x) != 6 , gpolygon_members)
-#                     relatives = setdiff(vcat([filter_relatives_by_type(graphene, x, "Polygon") for x in gpolygon_members]...), gpolygon_members)
-#                     type = "5775"
-#                 end
-#             else
-#                 type = "Complex"
-#             end
-#     elseif get_type(marker) == "Polygon"
-#         if get_signature(marker) == "5-2|7-4|"
-#             gatom_members = filter_relatives_by_type(graphene, marker, "Atom")
-#             gbond_members = vcat([filter_relatives_by_type(graphene, x, "Bond") for x in gatom_members]...) |> unique
-#             gbond_members = vcat(filter(x -> get_signature(x) == "7-2|" , gbond_members), filter_relatives_by_type(graphene, marker, "Bond"))
-#             gatom_members = vcat([filter_relatives_by_type(graphene, x, "Atom") for x in gbond_members]...) |> unique
-#             gpolygon_members = vcat([filter_relatives_by_type(graphene, x, "Polygon") for x in gatom_members]...) |> unique
-#             type = "Butterfly"
-#         elseif get_signature(marker) == "5-2|6-6|"
-#             gatom_members = filter!(x -> get_signature(x) == "6-2|8-1|", filter_relatives_by_type(graphene, marker, "Atom"))
-#             gpolygon_members = vcat(filter_relatives_by_type(graphene, marker, "Polygon"), marker)
-#             filter!(x -> get_noa(x) != 6 , gpolygon_members)
-#             if length(gatom_members) == 4
-#                 points = map(a -> Point2D(get_x(a), get_y(a)), gatom_members)
-#                 line_points = map(a -> Point2D(get_x(a), get_y(a)), filter(x -> get_noa(x) == 5, gpolygon_members))
-#                 line = Line(line_points...)
-#                 points_orientation = map(x -> orientation(line, x), points)
-#                 if +(points_orientation...) == 0 || *(points_orientation...) == 1
-#                     type = "Divacancy"
-#                 else
-#                     type = "Complex"
-#                 end
-#             else
-#                 type = "Complex"
-#             end
-#         else
-#             type = "Complex"
-#         end
-#     else
-#         gpolygon_members = filter_relatives_by_type(graphene, marker, "Polygon")
-#         type = "Complex"
-#     end
-#
-#     gatom_gbond_members = vcat([filter_relatives_by_type(graphene, x, "Atom", "Bond") for x in gpolygon_members]...) |> unique
-#     members = Set(get_id.(vcat(gpolygon_members, gatom_gbond_members)))
-#     relatives = setdiff(vcat([filter_relatives_by_type(graphene, x, "Polygon") for x in gpolygon_members]...), gpolygon_members)
-#     noa = length(unique(filter(isatom, graphene[collect(members)])))
-#     signature = ""
-#     if unique(get_noa.(relatives)) != [6]
-#         type = "Complex"
-#     end
-#
-#     GDefect(id, get_x(marker), get_y(marker), Set(get_id.(relatives)), signature, get_frame(marker), get_dataset(marker), noa, members, type)
-# end
 
 function filter_relatives_by_type(graphene, g, type)
     relatives = graphene[collect(get_relatives(g))]
@@ -451,44 +328,3 @@ end
 stepout(graphene, g, steps::Vector{String}; id=0) = stepout(graphene, g, 0, steps; id=id)
 stepout(graphene, g, steps::String; id=0) = stepout(graphene, g, 0, [steps]; id=id)
 stepout(graphene, g; id=0) = stepout(graphene, g, 1; id=id)
-
-
-# function find_dfb_save(graphene_stack, output_path)
-#     divacancy = merge_stack(map(x -> find_isolated_defect(x, "divacancy"), graphene_stack))
-#     flower    = merge_stack(map(x -> find_isolated_defect(x, "flower"), graphene_stack))
-#     butterfly = merge_stack(map(x -> find_isolated_defect(x, "butterfly"), graphene_stack))
-#     dfb       = merge_stack([divacancy, flower, butterfly])
-#     FileIO.save(output_path, dfb)
-# end
-#
-# function display_dfb(d_divacancy_merge, d_flower_merge, d_butterfly_merge; shape="")
-#     red_line   = zeros(10000)
-#     green_line = zeros(10000)
-#     blue_line  = zeros(10000)
-#     red_countmap   = if ~isempty(d_divacancy_merge) countmap(DataFrame(d_divacancy_merge)[:, :frame]) else [] end
-#     green_countmap = if ~isempty(d_flower_merge) countmap(DataFrame(d_flower_merge)[      :, :frame]) else [] end
-#     blue_cpoPolygon  = if ~isempty(d_butterfly_merge) countmap(DataFrame(d_butterfly_merge)[:, :frame]) else [] end
-#
-#     for (k, v) in red_countmap
-#             red_line[k] = v
-#     end
-#     for (k, v) in green_countmap
-#             green_line[k] = v
-#     end
-#     for (k, v) in blue_countmap
-#             blue_line[k] = v
-#     end
-#
-#     if shape == "line"
-#         red   = red_line
-#         green = green_line
-#         blue  = blue_line
-#     else
-#         red   = reshape(red_line, (100, 100))
-#         green = reshape(green_line, (100, 100))
-#         blue  = reshape(blue_line, (100, 100))
-#     end
-#
-#     rgb_dfb = cat(red, green, blue; dims=3)
-#     colorview(RGB, permutedims(rgb_dfb, (3,2,1)))
-# end
