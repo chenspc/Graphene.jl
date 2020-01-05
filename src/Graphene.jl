@@ -12,11 +12,18 @@ using AutoHashEquals
 using Statistics: mean
 using TupleTools
 using SparseArrays: sparse
+using Base.Iterators: Stateful, take, cycle
+using Plots: plot, plot!, scatter, scatter!, @recipe, @colorant_str
+using Plots
+using LazySets: convex_hull, VPolygon
+using IterTools: subsets
+
+import Base.isless
 
 export AbstractGEntry, AbstractGPrimitive, AbstractGDefect
 export GAtom, GBond, GPolygon, GDefect
 export get_id, get_x, get_y, get_relatives, get_signature, get_frame, get_dataset, get_noa, get_type, get_members
-export isatom, isbond, ispolygon
+export isatom, isbond, ispolygon, istype
 
 abstract type AbstractGEntry end
 get_id(g::AbstractGEntry) = g._id
@@ -30,6 +37,8 @@ get_dataset(g::AbstractGEntry) = g._dataset
 isatom(g::AbstractGEntry) = isequal(get_type(g), "Atom")
 isbond(g::AbstractGEntry) = isequal(get_type(g), "Bond")
 ispolygon(g::AbstractGEntry) = isequal(get_type(g), "Polygon")
+istype(g::AbstractGEntry, types...) = |([isequal(get_type(g), t) for t in types]...)
+isless(a::AbstractGEntry, b::AbstractGEntry) = isless(get_noa(a), get_noa(b))
 
 abstract type AbstractGPrimitive <: AbstractGEntry end
 get_members(g::AbstractGPrimitive) = Set(g._id)
@@ -86,6 +95,22 @@ GPolygon(id::Int, x::Float64, y::Float64, noa::Int) = GPolygon(id, x, y, Set([])
 get_noa(g::GPolygon) = g._noa
 get_type(g::GPolygon) = "Polygon"
 
+@auto_hash_equals mutable struct GEntry<: AbstractGEntry
+    _id       ::Int
+    _x        ::Float64
+    _y        ::Float64
+    _relatives::Set{Int}
+    _signature::String
+    _frame    ::Int
+    _dataset  ::String
+
+    _noa      ::Int
+    _members  ::Set{Int}
+end
+get_noa(g::GEntry) = g._noa
+get_members(g::GEntry) = g._members
+get_type(g::GEntry) = "Undetermined"
+
 @auto_hash_equals mutable struct GDefect<: AbstractGDefect
     _id       ::Int
     _x        ::Float64
@@ -108,5 +133,6 @@ include("atoms.jl")
 include("bonds.jl")
 include("polygons.jl")
 include("defects.jl")
+include("plotting.jl")
 
 end # module

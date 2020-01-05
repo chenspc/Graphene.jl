@@ -90,8 +90,15 @@ test_gatom1 = GAtom(1, 12., 13., Set([4, 5, 6, 7]), "GATOM_Signature", 8, "datas
 test_gatom2 = GAtom(2, 22., 23., Set([4, 5, 6, 7]), "GATOM_Signature", 8, "dataset_9")
 test_gbond1 = GBond(11, 122., 133., Set([44, 55, 66, 77]), "GBOND_Signature", 8, "dataset_9")
 test_gbond2 = GBond(22, 222., 233., Set([44, 55, 66, 77]), "GBOND_Signature", 8, "dataset_9")
-test_gpolygon1 = GPolygon(111, 1222., 1333., Set([444, 555, 666, 777]), "GPOLYGON_Signature", 8, "dataset_9", 6)
-test_gpolygon2 = GPolygon(222, 2222., 2333., Set([444, 555, 666, 777]), "GPOLYGON_Signature", 8, "dataset_9", 6)
+test_gpolygon1 = GPolygon(111, 1222., 1333., Set([444, 555, 666, 777]), "GPOLYGON_Signature", 8, "dataset_9", 5)
+test_gpolygon2 = GPolygon(222, 2222., 2333., Set([444, 555, 666, 777]), "GPOLYGON_Signature", 8, "dataset_9", 7)
+test_g_for_sort = [test_gatom1, test_gatom2, test_gpolygon2, test_gbond1, test_gpolygon1, test_gbond2]
+
+@testset "isless and sort" begin
+    @test isless(test_gatom1, test_gpolygon1)
+    @test isless(test_gbond2, test_gpolygon2)
+    @test isless(test_gpolygon1, test_gpolygon2)
+end
 
 link_relatives!(test_gatom1, test_gatom2)
 @test get_relatives(test_gatom1) == Set([4, 5, 6, 7, 2])
@@ -203,20 +210,20 @@ test_graphene = vcat([test_gatom1, test_gatom2, test_gatom3, test_gatom4, test_g
 test_noa_dict = Dict([Pair(x._id, get_noa(x)) for x in test_graphene])
 map(x -> make_signature!(x, test_noa_dict), test_graphene)
 
-@test test_gatom1 == GAtom(1, 12., 13., Set([66, 11, 111, 222]), "2-2|6-2|", 8, "dataset")
-@test test_gatom2 == GAtom(2, 22., 23., Set([11, 22, 111, 222]), "2-2|6-2|", 8, "dataset")
-@test test_gatom3 == GAtom(3, 32., 33., Set([22, 33, 111, 222]), "2-2|6-2|", 8, "dataset")
-@test test_gatom4 == GAtom(4, 42., 43., Set([33, 44, 111, 222]), "2-2|6-2|", 8, "dataset")
-@test test_gatom5 == GAtom(5, 52., 53., Set([44, 55, 111, 222]), "2-2|6-2|", 8, "dataset")
-@test test_gatom6 == GAtom(6, 62., 63., Set([55, 66, 111, 222]), "2-2|6-2|", 8, "dataset")
-@test test_gbond1 == GBond(11, 122., 133., Set([1, 2, 111, 222]), "1-2|6-2|", 8, "dataset")
-@test test_gbond2 == GBond(22, 222., 233., Set([2, 3, 111, 222]), "1-2|6-2|", 8, "dataset")
-@test test_gbond3 == GBond(33, 322., 333., Set([3, 4, 111, 222]), "1-2|6-2|", 8, "dataset")
-@test test_gbond4 == GBond(44, 422., 433., Set([4, 5, 111, 222]), "1-2|6-2|", 8, "dataset")
-@test test_gbond5 == GBond(55, 522., 533., Set([5, 6, 111, 222]), "1-2|6-2|", 8, "dataset")
-@test test_gbond6 == GBond(66, 622., 633., Set([6, 1, 111, 222]), "1-2|6-2|", 8, "dataset")
-@test test_gpolygon1 == GPolygon(111, 1222., 1333., Set([1, 2, 3, 4, 5, 6, 11, 22, 33, 44, 55, 66, 111]), "1-6|2-6|6-1|", 8, "dataset", 6)
-@test test_gpolygon2 == GPolygon(222, 2222., 2333., Set([1, 2, 3, 4, 5, 6, 11, 22, 33, 44, 55, 66, 222]), "1-6|2-6|6-1|", 8, "dataset", 6)
+@test test_gatom1 == GAtom(1, 12., 13., Set([66, 11, 111, 222]), "6-2|", 8, "dataset")
+@test test_gatom2 == GAtom(2, 22., 23., Set([11, 22, 111, 222]), "6-2|", 8, "dataset")
+@test test_gatom3 == GAtom(3, 32., 33., Set([22, 33, 111, 222]), "6-2|", 8, "dataset")
+@test test_gatom4 == GAtom(4, 42., 43., Set([33, 44, 111, 222]), "6-2|", 8, "dataset")
+@test test_gatom5 == GAtom(5, 52., 53., Set([44, 55, 111, 222]), "6-2|", 8, "dataset")
+@test test_gatom6 == GAtom(6, 62., 63., Set([55, 66, 111, 222]), "6-2|", 8, "dataset")
+@test test_gbond1 == GBond(11, 122., 133., Set([1, 2, 111, 222]), "6-2|", 8, "dataset")
+@test test_gbond2 == GBond(22, 222., 233., Set([2, 3, 111, 222]), "6-2|", 8, "dataset")
+@test test_gbond3 == GBond(33, 322., 333., Set([3, 4, 111, 222]), "6-2|", 8, "dataset")
+@test test_gbond4 == GBond(44, 422., 433., Set([4, 5, 111, 222]), "6-2|", 8, "dataset")
+@test test_gbond5 == GBond(55, 522., 533., Set([5, 6, 111, 222]), "6-2|", 8, "dataset")
+@test test_gbond6 == GBond(66, 622., 633., Set([6, 1, 111, 222]), "6-2|", 8, "dataset")
+@test test_gpolygon1 == GPolygon(111, 1222., 1333., Set([1, 2, 3, 4, 5, 6, 11, 22, 33, 44, 55, 66, 111]), "6-1|", 8, "dataset", 6)
+@test test_gpolygon2 == GPolygon(222, 2222., 2333., Set([1, 2, 3, 4, 5, 6, 11, 22, 33, 44, 55, 66, 222]), "6-1|", 8, "dataset", 6)
 
 @testset "Make Graphene" begin
     test_graphene1 = make_graphene(test_xy, max_bondlength=8, frame=12, dataset="test_dataset")
