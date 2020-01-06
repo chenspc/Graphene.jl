@@ -268,6 +268,7 @@ test_defects[5]._id = length(test_graphene) + 1
     @test get_frame(test_stonewales) == 0
     @test get_dataset(test_stonewales) == "dataset"
     @test get_noa(test_stonewales) == 16
+    @test length(get_relatives(test_stonewales)) == 10
     @test length(get_members(test_stonewales)) == 39
     @test get_type(test_stonewales) == "Stone-Wales"
 end
@@ -277,17 +278,9 @@ end
     @test get_frame(test_5775) == 0
     @test get_dataset(test_5775) == "dataset"
     @test get_noa(test_5775) == 18
+    @test length(get_relatives(test_5775)) == 12
     @test length(get_members(test_5775)) == 43
     @test get_type(test_5775) == "5775"
-end
-
-@testset "Flower" begin
-    @test get_id(test_flower) == length(test_graphene) + 1
-    @test get_frame(test_flower) == 0
-    @test get_dataset(test_flower) == "dataset"
-    @test get_noa(test_flower) == 22
-    @test length(get_members(test_flower)) == 55
-    @test get_type(test_flower) == "Flower"
 end
 
 @testset "Divacancy" begin
@@ -295,8 +288,19 @@ end
     @test get_frame(test_divacancy) == 0
     @test get_dataset(test_divacancy) == "dataset"
     @test get_noa(test_divacancy) == 14
+    @test length(get_relatives(test_divacancy)) == 10
     @test length(get_members(test_divacancy)) == 33
     @test get_type(test_divacancy) == "Divacancy"
+end
+
+@testset "Flower" begin
+    @test get_id(test_flower) == length(test_graphene) + 1
+    @test get_frame(test_flower) == 0
+    @test get_dataset(test_flower) == "dataset"
+    @test get_noa(test_flower) == 22
+    @test length(get_relatives(test_flower)) == 12
+    @test length(get_members(test_flower)) == 55
+    @test get_type(test_flower) == "Flower"
 end
 
 @testset "Butterfly" begin
@@ -304,6 +308,7 @@ end
     @test get_frame(test_butterfly) == 0
     @test get_dataset(test_butterfly) == "dataset"
     @test get_noa(test_butterfly) == 30
+    @test length(get_relatives(test_butterfly)) == 14
     @test length(get_members(test_butterfly)) == 77
     @test get_type(test_butterfly) == "Butterfly"
 end
