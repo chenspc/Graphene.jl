@@ -256,6 +256,9 @@ function find_defect(graphene, type::String)
     elseif type == "Butterfly" || type == "V2(5555-6-7777)"
         defects = [defects; find_butterfly(graphene)]
     end
+    for i in 1:length(defects)
+        defects[i]._id = id_offset+i
+    end
     return defects
 end
 

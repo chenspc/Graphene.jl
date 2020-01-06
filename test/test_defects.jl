@@ -244,7 +244,7 @@ map(x -> make_signature!(x, test_noa_dict), test_graphene)
 end
 
 test_defect_image = import_stack("test_files/test_defect_bw.h5")
-test_graphene = make_graphene(centroid2xy(make_centroids(test_defect_image)), max_bondlength=20)
+test_graphene = make_graphene(centroid2xy(make_centroids(test_defect_image)), max_bondlength=10)
 
 test_flower = first(find_defect(test_graphene, "Flower"))
 test_divacancy = first(find_defect(test_graphene, "Divacancy"))
@@ -262,6 +262,24 @@ test_defects[5]._id = length(test_graphene) + 1
 @test test_defects[3] == test_butterfly
 @test test_defects[4] == test_stonewales
 @test test_defects[5] == test_5775
+
+@testset "Stone-Wales" begin
+    @test get_id(test_stonewales) == length(test_graphene) + 1
+    @test get_frame(test_stonewales) == 0
+    @test get_dataset(test_stonewales) == "dataset"
+    @test get_noa(test_stonewales) == 16
+    @test length(get_members(test_stonewales)) == 39
+    @test get_type(test_stonewales) == "Stone-Wales"
+end
+
+@testset "5775" begin
+    @test get_id(test_5775) == length(test_graphene) + 1
+    @test get_frame(test_5775) == 0
+    @test get_dataset(test_5775) == "dataset"
+    @test get_noa(test_5775) == 18
+    @test length(get_members(test_5775)) == 43
+    @test get_type(test_5775) == "5775"
+end
 
 @testset "Flower" begin
     @test get_id(test_flower) == length(test_graphene) + 1
@@ -288,22 +306,4 @@ end
     @test get_noa(test_butterfly) == 30
     @test length(get_members(test_butterfly)) == 77
     @test get_type(test_butterfly) == "Butterfly"
-end
-
-@testset "Stone-Wales" begin
-    @test get_id(test_stonewales) == length(test_graphene) + 1
-    @test get_frame(test_stonewales) == 0
-    @test get_dataset(test_stonewales) == "dataset"
-    @test get_noa(test_stonewales) == 16
-    @test length(get_members(test_stonewales)) == 39
-    @test get_type(test_stonewales) == "Stone-Wales"
-end
-
-@testset "5775" begin
-    @test get_id(test_5775) == length(test_graphene) + 1
-    @test get_frame(test_5775) == 0
-    @test get_dataset(test_5775) == "dataset"
-    @test get_noa(test_5775) == 18
-    @test length(get_members(test_5775)) == 43
-    @test get_type(test_5775) == "5775"
 end
