@@ -4,7 +4,7 @@ export bond2path
 export collect_bonds_paths
 
 function make_bonds(atom_group)
-    Set(deleteat!(collect(Iterators.product(first(atom_group), atom_group)), 1))
+    deleteat!(collect(Iterators.product(first(atom_group), atom_group)), 1)
 end
 
 function make_paths(atoms3, indexed_atoms)
@@ -42,7 +42,7 @@ function make_paths(atoms3, indexed_atoms)
             n += 1
         end
     end
-    paths = Set(map(x->Tuple(x), [[ps1 p0 pe1], [ps2 p0 pe2], [ps3 p0 pe3]]))
+    paths = [(ps1, p0, pe1), (ps2, p0, pe2), (ps3, p0, pe3)]
 end
 
 function bond2path(atom_group::Array{Int64,1}, indexed_atoms)
@@ -53,20 +53,20 @@ function bond2path(atom_group::Array{Int64,1}, indexed_atoms)
     elseif nn == 2
         bonds = make_bonds(atom_group)
         path = (atom_group[2], atom_group[1], atom_group[3])
-        paths = Set([path, reverse(path)])
+        paths = [path, reverse(path)]
     elseif nn == 1
         bonds = make_bonds(atom_group)
-        paths = Set([(atom_group[2], atom_group[1], atom_group[2])])
+        paths = [(atom_group[2], atom_group[1], atom_group[2])]
     else   nn == 0
-        bonds = Set([])
-        paths = Set([])
+        bonds = []
+        paths = []
     end
     return bonds, paths
 end
 
 function collect_bonds_paths(atoms_groups, indexed_atoms)
     bonds_paths_collection = map(x -> bond2path(x, indexed_atoms), atoms_groups)
-    bonds = union(first.(bonds_paths_collection)...)
-    paths = union(last.(bonds_paths_collection)...)
+    bonds = vcat(unique!(first.(bonds_paths_collection))...)
+    paths = vcat(unique!(last.(bonds_paths_collection))...)
     return bonds, paths
 end

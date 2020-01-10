@@ -265,7 +265,7 @@ test_defects[5]._id = length(test_graphene) + 1
 
 @testset "Stone-Wales" begin
     @test get_id(test_stonewales) == length(test_graphene) + 1
-    @test get_frame(test_stonewales) == 0
+    @test get_frame(test_stonewales) == 1
     @test get_dataset(test_stonewales) == "dataset"
     @test get_noa(test_stonewales) == 16
     @test length(get_relatives(test_stonewales)) == 10
@@ -275,7 +275,7 @@ end
 
 @testset "5775" begin
     @test get_id(test_5775) == length(test_graphene) + 1
-    @test get_frame(test_5775) == 0
+    @test get_frame(test_5775) == 1
     @test get_dataset(test_5775) == "dataset"
     @test get_noa(test_5775) == 18
     @test length(get_relatives(test_5775)) == 12
@@ -285,7 +285,7 @@ end
 
 @testset "Divacancy" begin
     @test get_id(test_divacancy) == length(test_graphene) + 1
-    @test get_frame(test_divacancy) == 0
+    @test get_frame(test_divacancy) == 1
     @test get_dataset(test_divacancy) == "dataset"
     @test get_noa(test_divacancy) == 14
     @test length(get_relatives(test_divacancy)) == 10
@@ -295,7 +295,7 @@ end
 
 @testset "Flower" begin
     @test get_id(test_flower) == length(test_graphene) + 1
-    @test get_frame(test_flower) == 0
+    @test get_frame(test_flower) == 1
     @test get_dataset(test_flower) == "dataset"
     @test get_noa(test_flower) == 22
     @test length(get_relatives(test_flower)) == 12
@@ -305,7 +305,7 @@ end
 
 @testset "Butterfly" begin
     @test get_id(test_butterfly) == length(test_graphene) + 1
-    @test get_frame(test_butterfly) == 0
+    @test get_frame(test_butterfly) == 1
     @test get_dataset(test_butterfly) == "dataset"
     @test get_noa(test_butterfly) == 30
     @test length(get_relatives(test_butterfly)) == 14

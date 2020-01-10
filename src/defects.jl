@@ -59,6 +59,10 @@ function make_graphene(atom_xy; image_sampling=1, max_bondlength=10.0, frame=1, 
     noa_dict = Dict([Pair(x._id, get_noa(x)) for x in graphene])
     map(x -> make_signature!(x, noa_dict), graphene)
 
+    for i in 1:length(graphene)
+        graphene[i]._frame = frame
+        graphene[i]._dataset = dataset
+    end
     return graphene
 end
 
@@ -88,8 +92,7 @@ function make_gbond!(bond_gatoms::Vector{GAtom}, gbond_id)
 end
 
 function make_bondmatrix(bonds)
-    bond_dict = Dict(map(x -> Pair(x, TupleTools.sort(x)), collect(bonds)))
-    bonds_directionless = unique(collect(values(bond_dict)))
+    bonds_directionless = unique(map(x -> sort(collect(x)), bonds))
     index1 = vcat(first.(bonds_directionless), last.(bonds_directionless))
     index2 = vcat(last.(bonds_directionless), first.(bonds_directionless))
     bondids = collect(1:length(bonds_directionless))

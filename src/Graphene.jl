@@ -10,7 +10,6 @@ using GeometricalPredicates: Point2D, Line, orientation, getx, gety, length2
 using JuliaDB: IndexedTable
 using AutoHashEquals
 using Statistics: mean
-using TupleTools
 using SparseArrays: sparse
 using Base.Iterators: Stateful, take, cycle
 using Plots: plot, plot!, scatter, scatter!, @recipe, @colorant_str

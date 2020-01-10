@@ -3,7 +3,7 @@ export path2turn
 export link_turns!
 
 function make_polygons(paths)
-    turn_dict = Dict(map(path2turn, collect(paths)))
+    turn_dict = Dict(map(path2turn, paths))
     collector = []
     while !isempty(turn_dict)
         push!(collector, link_turns!(turn_dict))
