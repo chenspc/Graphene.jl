@@ -132,10 +132,18 @@ function make_signature(g, noa_dict)
     else
         relatives = [noa_dict[x] for x in g._relatives]
         count_vector = counts(relatives, maximum(relatives))
-        signature = join([string(i, "-", count_vector[i], "|") for i in 3:length(count_vector) if !iszero(count_vector[i])])
+        # signature = join([string(i, "-", count_vector[i], "|") for i in 3:length(count_vector) if !iszero(count_vector[i])])
+        if length(count_vector) >= 2
+            count_vector[1:2] = [0 0]
+        else
+            count_vector = zero(count_vector)
+        end
+        signature = join(map(signature_string, findnz(sparse(count_vector))...))
     end
     return signature
 end
+
+signature_string(a, b) = string(a, "-", b, "|")
 
 function make_signature!(g, noa_dict)
     g._signature = make_signature(g, noa_dict)
