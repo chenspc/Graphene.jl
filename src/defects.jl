@@ -16,6 +16,7 @@ export find_defect
 export find_stonewales
 export find_5775
 export find_divacancy
+export find_divacancy14
 export find_flower
 export find_butterfly
 export filter_relatives_by_type
@@ -204,6 +205,19 @@ function find_divacancy(graphene, area)
 end
 find_divacancy(graphene) = find_divacancy(graphene, graphene)
 
+function find_divacancy14(graphene, area)
+    defects = GDefect[]
+    for g in area
+        if get_type(g) == "Polygon" && get_noa(g) == 14 && get_signature(g) == "6-10|"
+            relatives = Set(get_id.(filter_relatives_by_type(graphene, g, "Polygon")))
+            members = Set(get_id.([g; filter_relatives_by_type(graphene, g, "Atom", "Bond")]))
+            push!(defects, GDefect(0, get_x(g), get_y(g), relatives, "", get_frame(g), get_dataset(g), get_noa(g), members, "Divacancy-14"))
+        end
+    end
+    return defects
+end
+find_divacancy14(graphene) = find_divacancy14(graphene, graphene)
+
 function find_flower(graphene, area)
     defects = GDefect[]
     for g in area
@@ -260,8 +274,13 @@ function find_defect(graphene, type::String)
         defects = [defects; find_stonewales(graphene)]
     elseif type == "5775"
         defects = [defects; find_5775(graphene)]
-    elseif type == "Divacancy" || type == "V2(585)"
+    elseif type == "Divacancy"
         defects = [defects; find_divacancy(graphene)]
+        defects = [defects; find_divacancy14(graphene)]
+    elseif type == type == "V2(585)"
+        defects = [defects; find_divacancy(graphene)]
+    elseif type == type == "V2(14)"
+        defects = [defects; find_divacancy14(graphene)]
     elseif type == "Flower" || type == "V2(555-777)"
         defects = [defects; find_flower(graphene)]
     elseif type == "Butterfly" || type == "V2(5555-6-7777)"

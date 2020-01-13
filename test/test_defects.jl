@@ -243,11 +243,12 @@ map(x -> make_signature!(x, test_noa_dict), test_graphene)
     @test get_id.(test_graphene2) == collect(1:length(test_graphene2))
 end
 
-test_defect_image = import_stack("test_files/test_defect_bw.h5")
+test_defect_image = import_stack("test_files/test_defect_6_bw.h5")
 test_graphene = make_graphene(centroid2xy(make_centroids(test_defect_image)), max_bondlength=10)
 
 test_flower = first(find_defect(test_graphene, "Flower"))
-test_divacancy = first(find_defect(test_graphene, "Divacancy"))
+test_divacancy = first(find_defect(test_graphene, "V2(585)"))
+test_divacancy14 = first(find_defect(test_graphene, "V2(14)"))
 test_butterfly = first(find_defect(test_graphene, "Butterfly"))
 test_stonewales = first(find_defect(test_graphene, "Stone-Wales"))
 test_5775 = first(find_defect(test_graphene, "5775"))
@@ -257,11 +258,13 @@ test_defects[2]._id = length(test_graphene) + 1
 test_defects[3]._id = length(test_graphene) + 1
 test_defects[4]._id = length(test_graphene) + 1
 test_defects[5]._id = length(test_graphene) + 1
+test_defects[6]._id = length(test_graphene) + 1
 @test test_defects[1] == test_flower
 @test test_defects[2] == test_divacancy
-@test test_defects[3] == test_butterfly
-@test test_defects[4] == test_stonewales
-@test test_defects[5] == test_5775
+@test test_defects[3] == test_divacancy14
+@test test_defects[4] == test_butterfly
+@test test_defects[5] == test_stonewales
+@test test_defects[6] == test_5775
 
 @testset "Stone-Wales" begin
     @test get_id(test_stonewales) == length(test_graphene) + 1
@@ -291,6 +294,16 @@ end
     @test length(get_relatives(test_divacancy)) == 10
     @test length(get_members(test_divacancy)) == 33
     @test get_type(test_divacancy) == "Divacancy"
+end
+
+@testset "Divacancy-14" begin
+    @test get_id(test_divacancy14) == length(test_graphene) + 1
+    @test get_frame(test_divacancy14) == 1
+    @test get_dataset(test_divacancy14) == "dataset"
+    @test get_noa(test_divacancy14) == 14
+    @test length(get_relatives(test_divacancy14)) == 10
+    @test length(get_members(test_divacancy14)) == 29
+    @test get_type(test_divacancy14) == "Divacancy-14"
 end
 
 @testset "Flower" begin
