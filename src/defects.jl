@@ -268,7 +268,11 @@ end
 find_butterfly(graphene) = find_butterfly(graphene, graphene)
 
 function find_defect(graphene, type::String)
-    id_offset = maximum(get_id.(graphene))
+    if isempty(graphene)
+        id_offset = maximum(get_id.(graphene))
+    else
+        id_offset = 0
+    end
     defects = GDefect[]
     if type == "Stone-Wales"
         defects = [defects; find_stonewales(graphene)]
@@ -277,9 +281,9 @@ function find_defect(graphene, type::String)
     elseif type == "Divacancy"
         defects = [defects; find_divacancy(graphene)]
         defects = [defects; find_divacancy14(graphene)]
-    elseif type == type == "V2(585)"
+    elseif type == "V2(585)"
         defects = [defects; find_divacancy(graphene)]
-    elseif type == type == "V2(14)"
+    elseif type == "V2(14)"
         defects = [defects; find_divacancy14(graphene)]
     elseif type == "Flower" || type == "V2(555-777)"
         defects = [defects; find_flower(graphene)]
@@ -293,7 +297,11 @@ function find_defect(graphene, type::String)
 end
 
 function find_defect(graphene, types...)
-    id_offset = maximum(get_id.(graphene))
+    if isempty(graphene)
+        id_offset = maximum(get_id.(graphene))
+    else
+        id_offset = 0
+    end
     defects = vcat(map(t -> find_defect(graphene, t), types)...)
     for i in 1:length(defects)
         defects[i]._id = id_offset+i
