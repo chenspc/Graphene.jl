@@ -153,11 +153,11 @@ end
 function find_stonewales(graphene, area)
     defects = GDefect[]
     for g in area
-        if get_type(g) == "Bond" && get_signature(g) == "7-2|"
-            d = stepout(graphene, g, ["Atom", "Polygon"])
+        if get_type(g) == :bond && get_signature(g) == "7-2|"
+            d = stepout(graphene, g, [:atom, :polygon])
             if sort(get_noa.(filter(ispolygon, graphene[collect(get_members(d))]))) == [5, 5, 7, 7]
                 if Set(get_signature.(filter(ispolygon, graphene[collect(get_members(d))]))) == Set(["5-2|6-4|7-1|", "6-3|7-2|"])
-                    push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), "Stone-Wales"))
+                    push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), :stone_wales))
                 end
             end
         end
@@ -169,14 +169,14 @@ find_stonewales(graphene) = find_stonewales(graphene, graphene)
 function find_5775(graphene, area)
     defects = GDefect[]
     for g in area
-        if get_type(g) == "Bond" && get_signature(g) == "7-2|"
-            gpolygon_members = filter_relatives_by_type(graphene, g, "Polygon")
+        if get_type(g) == :bond && get_signature(g) == "7-2|"
+            gpolygon_members = filter_relatives_by_type(graphene, g, :polygon)
             if unique(get_signature.(gpolygon_members)) == ["5-1|6-5|7-1|"]
-                key_hexagons = filter(x -> get_noa(x) == 6, graphene[collect(get_members(stepout(graphene, g, ["Atom", "Polygon"])))])
+                key_hexagons = filter(x -> get_noa(x) == 6, graphene[collect(get_members(stepout(graphene, g, [:atom, :polygon])))])
                 if length(key_hexagons) == 2 && unique(get_signature.(key_hexagons)) == ["5-1|6-3|7-2|"]
-                    key_bonds = filter(x -> get_signature(x) == "5-1|7-1|", filter_relatives_by_type(graphene, gpolygon_members, "Bond"))
-                    d = stepout(graphene, key_bonds, "Polygon")
-                    push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), "5775"))
+                    key_bonds = filter(x -> get_signature(x) == "5-1|7-1|", filter_relatives_by_type(graphene, gpolygon_members, :bond))
+                    d = stepout(graphene, key_bonds, :polygon)
+                    push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), :v2_5775))
                 end
             end
         end
@@ -188,15 +188,15 @@ find_5775(graphene) = find_5775(graphene, graphene)
 function find_divacancy(graphene, area)
     defects = GDefect[]
     for g in area
-        if get_type(g) == "Polygon" && get_signature(g) == "5-2|6-6|"
-            hexagon_type1 = filter(x -> get_signature(x) == "6-5|8-1|", filter_relatives_by_type(graphene, g, "Polygon"))
-            hexagon_type2 = filter(x -> get_signature(x) == "5-1|6-4|8-1|", filter_relatives_by_type(graphene, g, "Polygon"))
+        if get_type(g) == :polygon && get_signature(g) == "5-2|6-6|"
+            hexagon_type1 = filter(x -> get_signature(x) == "6-5|8-1|", filter_relatives_by_type(graphene, g, :polygon))
+            hexagon_type2 = filter(x -> get_signature(x) == "5-1|6-4|8-1|", filter_relatives_by_type(graphene, g, :polygon))
             if length(hexagon_type1) == 2 && length(hexagon_type2) == 4
-                atoms_type2 = vcat([filter_relatives_by_type(graphene, x, "Atom") for x in hexagon_type2]...)
+                atoms_type2 = vcat([filter_relatives_by_type(graphene, x, :atom) for x in hexagon_type2]...)
                 if length(atoms_type2) == length(unique(atoms_type2))
-                    key_bonds = filter(x -> get_signature(x) == "5-1|8-1|", filter_relatives_by_type(graphene, g, "Bond"))
-                    d = stepout(graphene, key_bonds, "Polygon")
-                    push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), "Divacancy"))
+                    key_bonds = filter(x -> get_signature(x) == "5-1|8-1|", filter_relatives_by_type(graphene, g, :bond))
+                    d = stepout(graphene, key_bonds, :polygon)
+                    push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), :v2_585))
                 end
             end
         end
@@ -208,10 +208,10 @@ find_divacancy(graphene) = find_divacancy(graphene, graphene)
 function find_divacancy14(graphene, area)
     defects = GDefect[]
     for g in area
-        if get_type(g) == "Polygon" && get_noa(g) == 14 && get_signature(g) == "6-10|"
-            relatives = Set(get_id.(filter_relatives_by_type(graphene, g, "Polygon")))
-            members = Set(get_id.([g; filter_relatives_by_type(graphene, g, "Atom", "Bond")]))
-            push!(defects, GDefect(0, get_x(g), get_y(g), relatives, "", get_frame(g), get_dataset(g), get_noa(g), members, "Divacancy-14"))
+        if get_type(g) == :polygon && get_noa(g) == 14 && get_signature(g) == "6-10|"
+            relatives = Set(get_id.(filter_relatives_by_type(graphene, g, :polygon)))
+            members = Set(get_id.([g; filter_relatives_by_type(graphene, g, :atom, :bond)]))
+            push!(defects, GDefect(0, get_x(g), get_y(g), relatives, "", get_frame(g), get_dataset(g), get_noa(g), members, :v2_14))
         end
     end
     return defects
@@ -221,11 +221,11 @@ find_divacancy14(graphene) = find_divacancy14(graphene, graphene)
 function find_flower(graphene, area)
     defects = GDefect[]
     for g in area
-        if get_type(g) == "Atom" && get_signature(g) == "7-3|"
-            gpolygon_members = filter_relatives_by_type(graphene, g, "Polygon")
+        if get_type(g) == :atom && get_signature(g) == "7-3|"
+            gpolygon_members = filter_relatives_by_type(graphene, g, :polygon)
             if unique(get_noa.(gpolygon_members)) == [7] && unique(get_signature.(gpolygon_members)) == ["5-2|6-3|7-2|"]
-                d = stepout(graphene, g, ["Bond", "Atom", "Polygon"])
-                push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), "Flower"))
+                d = stepout(graphene, g, [:bond, :atom, :polygon])
+                push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), :flower))
             end
         end
     end
@@ -252,14 +252,14 @@ end
 function find_butterfly(graphene, area)
     defects = GDefect[]
     for g in area
-        if get_type(g) == "Polygon" && get_signature(g) == "5-2|7-4|"
-            gpolygon_members = filter_relatives_by_type(graphene, g, "Polygon")
+        if get_type(g) == :polygon && get_signature(g) == "5-2|7-4|"
+            gpolygon_members = filter_relatives_by_type(graphene, g, :polygon)
             key_polygons = filter(x -> get_noa(x) == 7 && get_signature(x) == "5-2|6-4|7-1|", gpolygon_members)
             if length(key_polygons) == 4
-                temp = vcat([common_relatives(graphene, i..., "Atom") for i in subsets(key_polygons, Val(2))]...)
-                key_atoms = unique([filter_relatives_by_type(graphene, g, "Atom"); temp])
-                d = stepout(graphene, key_atoms, "Polygon")
-                push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), "Butterfly"))
+                temp = vcat([common_relatives(graphene, i..., :atom) for i in subsets(key_polygons, Val(2))]...)
+                key_atoms = unique([filter_relatives_by_type(graphene, g, :atom); temp])
+                d = stepout(graphene, key_atoms, :polygon)
+                push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), :butterfly))
             end
         end
     end
@@ -267,27 +267,27 @@ function find_butterfly(graphene, area)
 end
 find_butterfly(graphene) = find_butterfly(graphene, graphene)
 
-function find_defect(graphene, type::String)
+function find_defect(graphene, type::Symbol)
     if isempty(graphene)
         id_offset = 0
     else
         id_offset = maximum(get_id.(graphene))
     end
     defects = GDefect[]
-    if type == "Stone-Wales"
+    if type == :stone_wales
         defects = [defects; find_stonewales(graphene)]
-    elseif type == "5775"
+    elseif type == :v2_5775
         defects = [defects; find_5775(graphene)]
-    elseif type == "Divacancy"
+    elseif type == :divacancy
         defects = [defects; find_divacancy(graphene)]
         defects = [defects; find_divacancy14(graphene)]
-    elseif type == "V2(585)"
+    elseif type == :v2_585
         defects = [defects; find_divacancy(graphene)]
-    elseif type == "V2(14)"
+    elseif type == :v2_14
         defects = [defects; find_divacancy14(graphene)]
-    elseif type == "Flower" || type == "V2(555-777)"
+    elseif type == :flower || type == :v2_555777
         defects = [defects; find_flower(graphene)]
-    elseif type == "Butterfly" || type == "V2(5555-6-7777)"
+    elseif type == :butterfly || type == :v2_555567777
         defects = [defects; find_butterfly(graphene)]
     end
     for i in 1:length(defects)
@@ -323,7 +323,7 @@ end
 filter_members_by_type(graphene, g, types...) = vcat(map(t -> filter_members_by_type(graphene, g, t), types)...)
 filter_members_by_type(graphene, g_vector::Vector, types...) = unique(vcat(map(g -> filter_members_by_type(graphene, g, types...), g_vector)...))
 
-function stepout(graphene, g, n::Int, steps=String[]; id=0)
+function stepout(graphene, g, n::Int, steps=Symbol[]; id=0)
     gmembers = AbstractGPrimitive[]
     if typeof(g) <: Vector
         members = union(get_members.(g)...)
@@ -337,7 +337,7 @@ function stepout(graphene, g, n::Int, steps=String[]; id=0)
         dataset = get_dataset(g)
     end
     if isempty(steps)
-        itr = Stateful(cycle(["Atom", "Bond", "Polygon"]))
+        itr = Stateful(cycle([:atom, :bond, :polygon]))
         if typeof(g) <: AbstractGPrimitive
             for x in itr; x != get_type(g) || break; end
         end
@@ -355,7 +355,7 @@ function stepout(graphene, g, n::Int, steps=String[]; id=0)
     x = mean(get_x.(gmembers))
     y = mean(get_y.(gmembers))
     signature = ""
-    if steps[end] != "Atom"
+    if steps[end] != :atom
         gmembers = [gmembers; filter(x -> isatom(x)||isbond(x), graphene[collect(relatives)])]
     end
     members = union([get_members.(gmembers); members]...)
@@ -366,6 +366,6 @@ function stepout(graphene, g, n::Int, steps=String[]; id=0)
 
     g_new = GEntry(id, x, y, relatives, signature, frame, dataset, noa, members)
 end
-stepout(graphene, g, steps::Vector{String}; id=0) = stepout(graphene, g, 0, steps; id=id)
-stepout(graphene, g, steps::String; id=0) = stepout(graphene, g, 0, [steps]; id=id)
+stepout(graphene, g, steps::Vector{Symbol}; id=0) = stepout(graphene, g, 0, steps; id=id)
+stepout(graphene, g, steps::Symbol; id=0) = stepout(graphene, g, 0, [steps]; id=id)
 stepout(graphene, g; id=0) = stepout(graphene, g, 1; id=id)
