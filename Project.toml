@@ -26,7 +26,7 @@ TupleTools = "9d95972d-f1c8-5527-a6e0-b4b365fa01f6"
 
 [compat]
 AutoHashEquals = "^0.2.0"
-CSV = "^0.5.26"
+CSV = "^0.5"
 DataFrames = "^1.0"
 FixedPointNumbers = "^0.6"
 GeometricalPredicates = "^0.4.0"
