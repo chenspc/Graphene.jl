@@ -171,18 +171,49 @@ function find_5775(graphene, area)
     for g in area
         if get_type(g) == :bond && get_signature(g) == "7-2|"
             gpolygon_members = filter_relatives_by_type(graphene, g, :polygon)
-            if unique(get_signature.(gpolygon_members)) == ["5-1|6-5|7-1|"]
-                key_hexagons = filter(x -> get_noa(x) == 6, graphene[collect(get_members(stepout(graphene, g, [:atom, :polygon])))])
-                if length(key_hexagons) == 2 && unique(get_signature.(key_hexagons)) == ["5-1|6-3|7-2|"]
-                    key_bonds = filter(x -> get_signature(x) == "5-1|7-1|", filter_relatives_by_type(graphene, gpolygon_members, :bond))
-                    d = stepout(graphene, key_bonds, :polygon)
-                    push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), :v2_5775))
+            gatom_members = filter_relatives_by_type(graphene, g, :atom)
+            if get_signature.(gpolygon_members) == ["5-1|6-5|7-1|", "5-1|6-5|7-1|"] && get_signature.(gatom_members) == ["6-1|7-2|", "6-1|7-2|"]
+                key_hexagons = filter(x -> get_noa(x) == 6, filter_relatives_by_type(graphene, atom_members, :polygon))
+                # key_hexagons = filter(x -> get_noa(x) == 6, graphene[collect(get_members(stepout(graphene, g, [:atom, :polygon])))])
+                if length(key_hexagons) == 2 && get_signature.(key_hexagons) == ["5-1|6-3|7-2|", "5-1|6-3|7-2|"]
+                    hexagon1, hexagon2 = key_hexagons
+                    h1_bond67 = filter(x -> get_signature(x) == "6-1|7-1|", filter_relatives_by_type(graphene, hexagon1, :bond))
+                    h2_bond67 = filter(x -> get_signature(x) == "6-1|7-1|", filter_relatives_by_type(graphene, hexagon2, :bond))
+                    if length(h1_bond67) == 2 && length(h2_bond67) == 2
+                        h1_atom567 = filter(x -> get_signature(x) == "5-1|6-1|7-1|", filter_relatives_by_type(graphene, h1_bond67, :atom))
+                        h2_atom567 = filter(x -> get_signature(x) == "5-1|6-1|7-1|", filter_relatives_by_type(graphene, h2_bond67, :atom))
+                        if length(h1_atom567) == 1 && length(h2_atom567) == 1
+                            pentagon1 = filter(x -> get_noa(x) == 5, filter_relatives_by_type(graphene, h1_atom567, :polygon))
+                            pentagon2 = filter(x -> get_noa(x) == 5, filter_relatives_by_type(graphene, h2_atom567, :polygon))
+                            if get_signature(pentagon1) == "6-4|7-1|" && get_signature(pentagon2) == "6-4|7-1|"
+                                d = stepout(graphene, [h1_atom567, h2_atom567], [:bond, :polygon, :bond, :atom])
+                                push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), :v2_5775))
+                            end
+                        end
+                    end
                 end
             end
         end
     end
     return defects
 end
+# function find_5775(graphene, area)
+#     defects = GDefect[]
+#     for g in area
+#         if get_type(g) == :bond && get_signature(g) == "7-2|"
+#             gpolygon_members = filter_relatives_by_type(graphene, g, :polygon)
+#             if unique(get_signature.(gpolygon_members)) == ["5-1|6-5|7-1|"]
+#                 key_hexagons = filter(x -> get_noa(x) == 6, graphene[collect(get_members(stepout(graphene, g, [:atom, :polygon])))])
+#                 if length(key_hexagons) == 2 && unique(get_signature.(key_hexagons)) == ["5-1|6-3|7-2|"]
+#                     key_bonds = filter(x -> get_signature(x) == "5-1|7-1|", filter_relatives_by_type(graphene, gpolygon_members, :bond))
+#                     d = stepout(graphene, key_bonds, :polygon)
+#                     push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), :v2_5775))
+#                 end
+#             end
+#         end
+#     end
+#     return defects
+# end
 find_5775(graphene) = find_5775(graphene, graphene)
 
 function find_divacancy(graphene, area)
