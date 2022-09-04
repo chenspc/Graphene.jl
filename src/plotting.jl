@@ -60,7 +60,7 @@ function plot_graphene(graphene, g::Vector{T}; kw...) where T<:AbstractGPrimitiv
     # gbonds = filter(isbond, g)
     gpolygons = sort(filter(ispolygon, g), rev=true)
     for n in gpolygons
-        points = [[get_x(p), get_y(p)] for p in filter_relatives_by_type(graphene, n, "Atom")]
+        points = [[get_x(p), get_y(p)] for p in filter_relatives_by_type(graphene, n, :atom)]
         hull = convex_hull(points)
         noa = get_noa(n)
         plot!(plt, VPolygon(hull), alpha=1, color=g_palette[min(noa,21)])
@@ -79,3 +79,4 @@ function plot_graphene(graphene, g_vector::Vector{GDefect}; kw...)
     end
     plot_graphene(graphene, temp; kw...)
 end
+:atom
