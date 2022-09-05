@@ -173,8 +173,7 @@ function find_5775(graphene, area)
             gpolygon_members = filter_relatives_by_type(graphene, g, :polygon)
             gatom_members = filter_relatives_by_type(graphene, g, :atom)
             if get_signature.(gpolygon_members) == ["5-1|6-5|7-1|", "5-1|6-5|7-1|"] && get_signature.(gatom_members) == ["6-1|7-2|", "6-1|7-2|"]
-                key_hexagons = filter(x -> get_noa(x) == 6, filter_relatives_by_type(graphene, atom_members, :polygon))
-                # key_hexagons = filter(x -> get_noa(x) == 6, graphene[collect(get_members(stepout(graphene, g, [:atom, :polygon])))])
+                key_hexagons = filter(x -> get_noa(x) == 6, filter_relatives_by_type(graphene, gatom_members, :polygon))
                 if length(key_hexagons) == 2 && get_signature.(key_hexagons) == ["5-1|6-3|7-2|", "5-1|6-3|7-2|"]
                     hexagon1, hexagon2 = key_hexagons
                     h1_bond67 = filter(x -> get_signature(x) == "6-1|7-1|", filter_relatives_by_type(graphene, hexagon1, :bond))
@@ -183,10 +182,12 @@ function find_5775(graphene, area)
                         h1_atom567 = filter(x -> get_signature(x) == "5-1|6-1|7-1|", filter_relatives_by_type(graphene, h1_bond67, :atom))
                         h2_atom567 = filter(x -> get_signature(x) == "5-1|6-1|7-1|", filter_relatives_by_type(graphene, h2_bond67, :atom))
                         if length(h1_atom567) == 1 && length(h2_atom567) == 1
-                            pentagon1 = filter(x -> get_noa(x) == 5, filter_relatives_by_type(graphene, h1_atom567, :polygon))
-                            pentagon2 = filter(x -> get_noa(x) == 5, filter_relatives_by_type(graphene, h2_atom567, :polygon))
+                            pentagon1 = filter(x -> get_noa(x) == 5, filter_relatives_by_type(graphene, h1_atom567, :polygon)) |> first
+                            pentagon2 = filter(x -> get_noa(x) == 5, filter_relatives_by_type(graphene, h2_atom567, :polygon)) |> first
                             if get_signature(pentagon1) == "6-4|7-1|" && get_signature(pentagon2) == "6-4|7-1|"
-                                d = stepout(graphene, [h1_atom567, h2_atom567], [:bond, :polygon, :bond, :atom])
+                                pentagons =  filter(x -> get_noa(x) == 5, filter_relatives_by_type(graphene, gpolygon_members, :polygon))
+                                heptagons =  filter(x -> get_noa(x) == 7, filter_relatives_by_type(graphene, gpolygon_members, :polygon))
+                                d = stepout(graphene, vcat(pentagons, heptagons), [:bond])
                                 push!(defects, GDefect(0, get_x(d), get_y(d), get_relatives(d), "", get_frame(d), get_dataset(d), get_noa(d), get_members(d), :v2_5775))
                             end
                         end
@@ -354,7 +355,7 @@ end
 filter_members_by_type(graphene, g, types...) = vcat(map(t -> filter_members_by_type(graphene, g, t), types)...)
 filter_members_by_type(graphene, g_vector::Vector, types...) = unique(vcat(map(g -> filter_members_by_type(graphene, g, types...), g_vector)...))
 
-function stepout(graphene, g, n::Int, steps=Symbol[]; id=0)
+function stepout(graphene, g, n::Int, steps::Vector{Symbol}; id=0)
     gmembers = AbstractGPrimitive[]
     if typeof(g) <: Vector
         members = union(get_members.(g)...)
@@ -390,12 +391,12 @@ function stepout(graphene, g, n::Int, steps=Symbol[]; id=0)
         gmembers = [gmembers; filter(x -> isatom(x)||isbond(x), graphene[collect(relatives)])]
     end
     members = union([get_members.(gmembers); members]...)
-    gmembers = [gmembers; filter(x -> isatom(x)||isbond(x), graphene[collect(members)])]
+    gmembers = [gmembers; filter(x -> isatom(x)||isbond(x), graphene[collect(members)]); g]
     noa = length(unique(filter(isatom, gmembers)))
     members = Set(get_id.(gmembers))
     relatives = setdiff!(relatives, members)
 
-    g_new = GEntry(id, x, y, relatives, signature, frame, dataset, noa, members)
+    return GEntry(id, x, y, relatives, signature, frame, dataset, noa, members)
 end
 stepout(graphene, g, steps::Vector{Symbol}; id=0) = stepout(graphene, g, 0, steps; id=id)
 stepout(graphene, g, steps::Symbol; id=0) = stepout(graphene, g, 0, [steps]; id=id)
