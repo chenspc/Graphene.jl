@@ -1,11 +1,12 @@
 using Graphene
 using Test
+using CSV
 using DataFrames
 using Images: Gray
 using FixedPointNumbers
 using HDF5: h5read
 
-test_csv_data = import_csv("test_files/test_data_flower.csv")
+test_csv_data = CSV.read("test_files/test_data_flower.csv", DataFrame)
 @test isa(test_csv_data, DataFrame)
 @test ncol(test_csv_data) == 2
 
